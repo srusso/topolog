@@ -37,7 +37,7 @@ public class LineModelLauncher extends ApplicationAdapter {
     @Override
     public void create() {
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.position.set(3f, 3f, 3f);
+        camera.position.set(0f, 3f, 3f);
         camera.lookAt(0, 0, 0);
         camera.near = 1f;
         camera.far = 300f;

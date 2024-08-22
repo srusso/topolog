@@ -8,11 +8,11 @@ public class CameraMovementService {
     private float upDown = 0; // up == 1, down == -1
 
     public void beginMovementForward() {
-        forward = 1;
+        forward = -1;
     }
 
     public void beginMovementBackward() {
-        forward = -1;
+        forward = 1;
     }
 
     public void beginMovementUp() {
@@ -45,6 +45,6 @@ public class CameraMovementService {
 
     public Vector3 cameraMovement(float deltaTime) {
         System.out.println("Delta time: " + deltaTime + ", upDown = " + upDown);
-        return new Vector3(0, 0, upDown * (20f * deltaTime));
+        return new Vector3(leftRight * (20f * deltaTime), upDown * (20f * deltaTime), forward * (20f * deltaTime));
     }
 }
