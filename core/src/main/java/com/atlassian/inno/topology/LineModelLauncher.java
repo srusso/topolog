@@ -1,5 +1,6 @@
 package com.atlassian.inno.topology;
 
+import com.atlassian.inno.topology.input.CameraMovementService;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -26,6 +27,12 @@ public class LineModelLauncher extends ApplicationAdapter {
     private ModelInstance line;
     private Environment environment;
     private float angle;
+
+    private final CameraMovementService cameraMovementService;
+
+    public LineModelLauncher(CameraMovementService cameraMovementService) {
+        this.cameraMovementService = cameraMovementService;
+    }
 
     @Override
     public void create() {
