@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 
+import static com.atlassian.inno.topology.shapes.BasicShapes.createHelix;
 import static com.atlassian.inno.topology.shapes.BasicShapes.createLine;
 import static com.atlassian.inno.topology.shapes.GridShape.createAxes;
 
@@ -23,8 +24,10 @@ public class LineModelLauncher extends ApplicationAdapter {
     private ModelBatch modelBatch;
     private Model gridModel;
     private Model lineModel;
+    private Model helixModel;
     private ModelInstance grid;
     private ModelInstance line;
+    private ModelInstance helix;
     private Environment environment;
     private float angle;
 
@@ -47,9 +50,11 @@ public class LineModelLauncher extends ApplicationAdapter {
 
         gridModel = createAxes();
         lineModel = createLine();
+        helixModel = createHelix();
 
         grid = new ModelInstance(gridModel);
         line = new ModelInstance(lineModel);
+        helix = new ModelInstance(helixModel);
 
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
@@ -73,11 +78,13 @@ public class LineModelLauncher extends ApplicationAdapter {
         angle += deltaTime * 20f;
         grid.transform.setToRotation(Vector3.Y, angle);
         line.transform.setToRotation(Vector3.Y, angle);
+        helix.transform.setToRotation(Vector3.Y, angle);
 
         // Render the models
         modelBatch.begin(camera);
         modelBatch.render(grid, environment);
         modelBatch.render(line, environment);
+        modelBatch.render(helix, environment);
         modelBatch.end();
     }
 
