@@ -1,8 +1,8 @@
-# topology-visual
+# Topolog
 
-A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
+This project contains some 3D illustrations around some basic topological concepts.
 
-This project was generated with a template including simple application launchers and an `ApplicationAdapter` extension that draws libGDX logo.
+It uses [libGDX](https://libgdx.com/) and was generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
 
 ## Platforms
 
