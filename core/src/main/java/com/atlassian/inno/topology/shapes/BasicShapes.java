@@ -44,17 +44,23 @@ public class BasicShapes {
         float prevX = helixX(0F);
         float prevY = helixY(0F);
         float prevZ = helixZ(0F);
+        final float helixShift = 0.7f; // how far up we are moving the covering space above the circle
 
-        for (int i = 1; i <= 400; i++) {
+        for (int i = 1; i <= 300; i++) {
             float s = 0.01F * i;
             float newX = helixX(s);
             float newY = helixY(s);
             float newZ = helixZ(s);
-            builder.line(prevX, prevZ + 0.7f, prevY, newX, newZ + 0.7f, newY);
+
+            // note: the Y and Z axes are inverted compared to the notation in Hatcher
+            builder.line(prevX, prevZ + helixShift, prevY, newX, newZ + helixShift, newY);
+
             prevX = newX;
             prevY = newY;
             prevZ = newZ;
         }
+
+        builder.line(helixX(0F), helixZ(0F) + helixShift, helixY(0F), prevX, prevZ + helixShift, prevY);
 
         return modelBuilder.end();
     }
