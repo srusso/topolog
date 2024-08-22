@@ -3,31 +3,28 @@ package com.atlassian.inno.topology;
 import com.atlassian.inno.topology.input.CameraMovementService;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.graphics.VertexAttributes;
-import com.badlogic.gdx.graphics.g3d.*;
+import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
-import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static com.atlassian.inno.topology.shapes.BasicShapes.createHelix;
-import static com.atlassian.inno.topology.shapes.BasicShapes.createLine;
 import static com.atlassian.inno.topology.shapes.GridShape.createAxes;
 
 public class LineModelLauncher extends ApplicationAdapter {
 
     private PerspectiveCamera camera;
     private ModelBatch modelBatch;
-    private Model gridModel;
-    private Model lineModel;
-    private Model helixModel;
-    private ModelInstance grid;
-    private ModelInstance line;
-    private ModelInstance helix;
+    private List<Model> models;
+    private List<ModelInstance> objectsToRender;
     private Environment environment;
     private float angle;
 
@@ -48,13 +45,8 @@ public class LineModelLauncher extends ApplicationAdapter {
 
         modelBatch = new ModelBatch();
 
-        gridModel = createAxes();
-        lineModel = createLine();
-        helixModel = createHelix();
-
-        grid = new ModelInstance(gridModel);
-        line = new ModelInstance(lineModel);
-        helix = new ModelInstance(helixModel);
+        models = Arrays.asList(createAxes(), createHelix());
+        objectsToRender = models.stream().map(ModelInstance::new).toList();
 
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
@@ -76,22 +68,17 @@ public class LineModelLauncher extends ApplicationAdapter {
 
         // Rotate the shapes
         angle += deltaTime * 20f;
-        grid.transform.setToRotation(Vector3.Y, angle);
-        line.transform.setToRotation(Vector3.Y, angle);
-        helix.transform.setToRotation(Vector3.Y, angle);
+        objectsToRender.forEach(o -> o.transform.setToRotation(Vector3.Y, angle));
 
         // Render the models
         modelBatch.begin(camera);
-        modelBatch.render(grid, environment);
-        modelBatch.render(line, environment);
-        modelBatch.render(helix, environment);
+        objectsToRender.forEach(o -> modelBatch.render(o, environment));
         modelBatch.end();
     }
 
     @Override
     public void dispose() {
         modelBatch.dispose();
-        gridModel.dispose();
-        lineModel.dispose();
+        models.forEach(Model::dispose);
     }
 }

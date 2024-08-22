@@ -30,7 +30,7 @@ public class BasicShapes {
         float prevY = helixY(0F);
         float prevZ = helixZ(0F);
 
-        for (int i = 1; i <= 100; i++) {
+        for (int i = 1; i <= 400; i++) {
             float s = 0.01F * i;
             float newX = helixX(s);
             float newY = helixY(s);
@@ -41,7 +41,6 @@ public class BasicShapes {
             prevZ = newZ;
         }
 
-        builder.line(0, 0, 0, 1, 1, 2);
         return modelBuilder.end();
     }
 
