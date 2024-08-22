@@ -24,6 +24,12 @@ public class BasicShapes {
             float newX = helixX(s);
             float newY = helixY(s);
 
+            if (i % 100 >= 20 && i % 100 <= 35) {
+                builder.setColor(Color.RED);
+            } else {
+                builder.setColor(Color.WHITE);
+            }
+
             // note: the Y and Z axes are inverted compared to the notation in Hatcher
             builder.line(prevX, 0, prevY, newX, 0, newY);
 
@@ -39,7 +45,7 @@ public class BasicShapes {
         modelBuilder.begin();
         MeshPartBuilder builder = modelBuilder.part("circleShape", GL20.GL_LINES,
             VertexAttributes.Usage.Position | VertexAttributes.Usage.ColorUnpacked, new Material());
-        builder.setColor(Color.PINK);
+        builder.setColor(Color.YELLOW);
 
         float prevX = helixX(0F);
         float prevY = helixY(0F);
@@ -52,6 +58,12 @@ public class BasicShapes {
             float newY = helixY(s);
             float newZ = helixZ(s);
 
+            if (i % 100 >= 20 && i % 100 <= 35) {
+                builder.setColor(Color.RED);
+            } else {
+                builder.setColor(Color.YELLOW);
+            }
+
             // note: the Y and Z axes are inverted compared to the notation in Hatcher
             builder.line(prevX, prevZ + helixShift, prevY, newX, newZ + helixShift, newY);
 
@@ -59,8 +71,6 @@ public class BasicShapes {
             prevY = newY;
             prevZ = newZ;
         }
-
-        builder.line(helixX(0F), helixZ(0F) + helixShift, helixY(0F), prevX, prevZ + helixShift, prevY);
 
         return modelBuilder.end();
     }
