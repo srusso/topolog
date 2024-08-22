@@ -39,7 +39,11 @@ public class ControlInputProcessor implements InputProcessor {
 
     @Override
     public boolean keyDown(int i) {
-
+        MovementAction action = movementActions.get(i);
+        if (action != null) {
+            action.onKeyDown.run();
+            return true;
+        }
         return false;
     }
 
@@ -50,7 +54,11 @@ public class ControlInputProcessor implements InputProcessor {
             return true;
         }
 
-
+        MovementAction action = movementActions.get(i);
+        if (action != null) {
+            action.onKeyUp.run();
+            return true;
+        }
 
         return false;
     }

@@ -11,12 +11,12 @@ import com.badlogic.gdx.Gdx;
 public class Launcher extends ApplicationAdapter {
 
     private static final CameraMovementService CAMERA_MOVEMENT_SERVICE = new CameraMovementService();
-    ApplicationAdapter adapter = new LineModelLauncher();
+    ApplicationAdapter adapter = new LineModelLauncher(CAMERA_MOVEMENT_SERVICE);
 
     @Override
     public void create() {
         adapter.create();
-        Gdx.input.setInputProcessor(new ControlInputProcessor());
+        Gdx.input.setInputProcessor(new ControlInputProcessor(CAMERA_MOVEMENT_SERVICE));
     }
 
     @Override

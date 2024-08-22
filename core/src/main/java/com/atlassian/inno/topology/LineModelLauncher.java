@@ -64,8 +64,13 @@ public class LineModelLauncher extends ApplicationAdapter {
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
+        final float deltaTime = Gdx.graphics.getDeltaTime();
+
+        camera.position.add(cameraMovementService.cameraMovement(deltaTime));
+        camera.update();
+
         // Rotate the shapes
-        angle += Gdx.graphics.getDeltaTime() * 20f;
+        angle += deltaTime * 20f;
         grid.transform.setToRotation(Vector3.Y, angle);
         line.transform.setToRotation(Vector3.Y, angle);
 
