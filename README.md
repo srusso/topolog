@@ -2,7 +2,9 @@
 
 This project contains some 3D illustrations around some basic topological concepts.
 
-It uses [libGDX](https://libgdx.com/) and was generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
+See [Hatcher](https://pi.math.cornell.edu/~hatcher/AT/ATpage.html) or Andrews University's [lectures](https://www.youtube.com/playlist?list=PLOROtRhtegr7DmeMyFxfKxsljAVsAn_X4) for an introduction to algebraic topology.
+
+[libGDX](https://libgdx.com/) is used for rendering. This repository was generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
 
 ## Platforms
 

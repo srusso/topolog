@@ -9,13 +9,28 @@ import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 
 public class BasicShapes {
-    public static Model createLine() {
+    public static Model createUnitCircle() {
         ModelBuilder modelBuilder = new ModelBuilder();
         modelBuilder.begin();
-        MeshPartBuilder builder = modelBuilder.part("lineShape", GL20.GL_LINES,
+        MeshPartBuilder builder = modelBuilder.part("circleShape", GL20.GL_LINES,
             VertexAttributes.Usage.Position | VertexAttributes.Usage.ColorUnpacked, new Material());
-        builder.setColor(Color.BLUE);
-        builder.line(0, 0, 0, 1, 1, 2);
+        builder.setColor(Color.WHITE);
+
+        float prevX = helixX(0F);
+        float prevY = helixY(0F);
+
+        for (int i = 1; i <= 100; i++) {
+            float s = 0.01F * i;
+            float newX = helixX(s);
+            float newY = helixY(s);
+
+            // note: the Y and Z axes are inverted compared to the notation in Hatcher
+            builder.line(prevX, 0, prevY, newX, 0, newY);
+
+            prevX = newX;
+            prevY = newY;
+        }
+
         return modelBuilder.end();
     }
 
@@ -35,7 +50,7 @@ public class BasicShapes {
             float newX = helixX(s);
             float newY = helixY(s);
             float newZ = helixZ(s);
-            builder.line(prevX, prevY, prevZ, newX, newY, newZ);
+            builder.line(prevX, prevZ + 0.7f, prevY, newX, newZ + 0.7f, newY);
             prevX = newX;
             prevY = newY;
             prevZ = newZ;

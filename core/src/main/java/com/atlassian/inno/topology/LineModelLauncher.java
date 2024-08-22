@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.atlassian.inno.topology.shapes.BasicShapes.createHelix;
-import static com.atlassian.inno.topology.shapes.GridShape.createAxes;
+import static com.atlassian.inno.topology.shapes.BasicShapes.createUnitCircle;
 
 public class LineModelLauncher extends ApplicationAdapter {
 
@@ -45,7 +45,11 @@ public class LineModelLauncher extends ApplicationAdapter {
 
         modelBatch = new ModelBatch();
 
-        models = Arrays.asList(createAxes(), createHelix());
+        models = Arrays.asList(
+//            createAxes(),
+            createHelix(),
+            createUnitCircle()
+        );
         objectsToRender = models.stream().map(ModelInstance::new).toList();
 
         environment = new Environment();

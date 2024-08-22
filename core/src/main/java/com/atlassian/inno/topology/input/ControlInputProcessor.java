@@ -15,10 +15,7 @@ public class ControlInputProcessor implements InputProcessor {
 
     private final Map<Integer, MovementAction> movementActions;
 
-    private final CameraMovementService cameraMovementService;
-
     public ControlInputProcessor(CameraMovementService cameraMovementService) {
-        this.cameraMovementService = cameraMovementService;
         this.movementActions = initMovementActions(cameraMovementService);
     }
 
