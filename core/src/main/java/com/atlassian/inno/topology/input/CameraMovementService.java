@@ -44,7 +44,10 @@ public class CameraMovementService {
     }
 
     public Vector3 cameraMovement(float deltaTime) {
-        System.out.println("Delta time: " + deltaTime + ", upDown = " + upDown);
-        return new Vector3(leftRight * (20f * deltaTime), upDown * (20f * deltaTime), forward * (20f * deltaTime));
+        return new Vector3(movementDelta(leftRight, deltaTime), movementDelta(upDown, deltaTime), movementDelta(forward, deltaTime));
+    }
+
+    private float movementDelta(float directionMovement, float deltaTime) {
+        return directionMovement * (20f * deltaTime);
     }
 }
