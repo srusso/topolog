@@ -16,7 +16,6 @@ import net.sr89.topology.input.CameraMovementService;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static net.sr89.topology.shapes.BasicShapes.*;
 import static net.sr89.topology.shapes.GridShape.createAxes;
@@ -26,7 +25,8 @@ public class LineModelLauncher extends ApplicationAdapter {
     private PerspectiveCamera camera;
     private ModelBatch modelBatch;
     private List<Model> models;
-    private List<ModelInstance> objectsToRender;
+    private List<ModelInstance> objectsToRotate;
+    private List<ModelInstance> cylinderHelix;
     private Environment environment;
     private float angle;
 
@@ -51,13 +51,11 @@ public class LineModelLauncher extends ApplicationAdapter {
 
         models = Arrays.asList(
             createAxes(),
-//            createHelix(),
+            createHelix(),
             createUnitCircle()
         );
-        objectsToRender = Stream.concat(
-            models.stream().map(ModelInstance::new),
-            createCylinderHelix().stream()
-        ).toList();
+        objectsToRotate = models.stream().map(ModelInstance::new).toList();
+        cylinderHelix = createCylinderHelix();
 
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
@@ -77,13 +75,15 @@ public class LineModelLauncher extends ApplicationAdapter {
         camera.update();
 
         // Rotate the shapes
-        angle += deltaTime * 20f;
-//        objectsToRender.forEach(o -> o.transform.setToRotation(Vector3.Y, angle));
-        objectsToRender.forEach(o -> o.transform.rotate(Vector3.Y, angle));
+        angle = deltaTime * 20f;
+        objectsToRotate.forEach(o -> o.transform.rotate(Vector3.Y, angle));
+        cylinderHelix.forEach(o -> o.transform.rotate(Vector3.Y, angle));
 
         // Render the models
         modelBatch.begin(camera);
-        objectsToRender.forEach(o -> modelBatch.render(o, environment));
+        objectsToRotate.forEach(o -> modelBatch.render(o, environment));
+        cylinderHelix.forEach(o -> modelBatch.render(o, environment));
+
         modelBatch.end();
     }
 

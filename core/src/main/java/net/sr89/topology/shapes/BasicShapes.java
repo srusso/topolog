@@ -88,7 +88,9 @@ public class BasicShapes {
 
         ModelInstance cylinder = new ModelInstance(cylinderModel);
 
-        cylinder.transform.translate(1f, 1f, 1f);
+        cylinder.transform
+            .scale(0.1f, 0.4f, 0.1f)
+            .translate(1f, 1f, 1f);
 
         List<ModelInstance> instances = new ArrayList<>();
 
@@ -106,7 +108,6 @@ public class BasicShapes {
         builder.setColor(helixColor);
 
         CylinderShapeBuilder.build(builder, 1, 1, 1, 100);
-//        CylinderShapeBuilder.build(builder, 0.5f, 0.5f, 0.5f, 100);
 
         return modelBuilder.end();
     }
