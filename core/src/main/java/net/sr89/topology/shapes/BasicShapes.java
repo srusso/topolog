@@ -1,13 +1,18 @@
 package net.sr89.topology.shapes;
 
-import net.sr89.topology.HexColors;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.CylinderShapeBuilder;
+import net.sr89.topology.HexColors;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BasicShapes {
     private final static Color helixColor = HexColors.GREEN_PASTEL;
@@ -47,7 +52,7 @@ public class BasicShapes {
         ModelBuilder modelBuilder = new ModelBuilder();
         modelBuilder.begin();
         MeshPartBuilder builder = modelBuilder.part("circleShape", GL20.GL_LINES,
-            VertexAttributes.Usage.Position | VertexAttributes.Usage.ColorUnpacked, new Material());
+            VertexAttributes.Usage.Position | VertexAttributes.Usage.ColorPacked, new Material());
         builder.setColor(helixColor);
 
         float prevX = helixX(0F);
@@ -74,6 +79,34 @@ public class BasicShapes {
             prevY = newY;
             prevZ = newZ;
         }
+
+        return modelBuilder.end();
+    }
+
+    public static List<ModelInstance> createCylinderHelix() {
+        Model cylinderModel = cylinderModel();
+
+        ModelInstance cylinder = new ModelInstance(cylinderModel);
+
+        cylinder.transform.translate(1f, 1f, 1f);
+
+        List<ModelInstance> instances = new ArrayList<>();
+
+        instances.add(cylinder);
+
+        return instances;
+    }
+
+    private static Model cylinderModel() {
+        ModelBuilder modelBuilder = new ModelBuilder();
+        modelBuilder.begin();
+        Material material = new Material();
+        MeshPartBuilder builder = modelBuilder.part("cylinder", GL20.GL_TRIANGLES,
+            VertexAttributes.Usage.Position | VertexAttributes.Usage.ColorUnpacked, material);
+        builder.setColor(helixColor);
+
+        CylinderShapeBuilder.build(builder, 1, 1, 1, 100);
+//        CylinderShapeBuilder.build(builder, 0.5f, 0.5f, 0.5f, 100);
 
         return modelBuilder.end();
     }

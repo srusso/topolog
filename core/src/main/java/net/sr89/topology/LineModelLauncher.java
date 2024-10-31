@@ -1,6 +1,5 @@
 package net.sr89.topology;
 
-import net.sr89.topology.input.CameraMovementService;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -13,12 +12,13 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
+import net.sr89.topology.input.CameraMovementService;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
-import static net.sr89.topology.shapes.BasicShapes.createHelix;
-import static net.sr89.topology.shapes.BasicShapes.createUnitCircle;
+import static net.sr89.topology.shapes.BasicShapes.*;
 import static net.sr89.topology.shapes.GridShape.createAxes;
 
 public class LineModelLauncher extends ApplicationAdapter {
@@ -51,10 +51,13 @@ public class LineModelLauncher extends ApplicationAdapter {
 
         models = Arrays.asList(
             createAxes(),
-            createHelix(),
+//            createHelix(),
             createUnitCircle()
         );
-        objectsToRender = models.stream().map(ModelInstance::new).toList();
+        objectsToRender = Stream.concat(
+            models.stream().map(ModelInstance::new),
+            createCylinderHelix().stream()
+        ).toList();
 
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
@@ -75,7 +78,8 @@ public class LineModelLauncher extends ApplicationAdapter {
 
         // Rotate the shapes
         angle += deltaTime * 20f;
-        objectsToRender.forEach(o -> o.transform.setToRotation(Vector3.Y, angle));
+//        objectsToRender.forEach(o -> o.transform.setToRotation(Vector3.Y, angle));
+        objectsToRender.forEach(o -> o.transform.rotate(Vector3.Y, angle));
 
         // Render the models
         modelBatch.begin(camera);
