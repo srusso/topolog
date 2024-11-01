@@ -86,15 +86,32 @@ public class BasicShapes {
     public static List<ModelInstance> createCylinderHelix() {
         Model cylinderModel = cylinderModel();
 
-        ModelInstance cylinder = new ModelInstance(cylinderModel);
-
-        cylinder.transform
-            .scale(0.1f, 0.4f, 0.1f)
-            .translate(1f, 1f, 1f);
+        float prevX = helixX(0F);
+        float prevY = helixY(0F);
+        float prevZ = helixZ(0F);
+        final float helixShift = 0.7f; // how far up we are moving the covering space above the circle
 
         List<ModelInstance> instances = new ArrayList<>();
 
-        instances.add(cylinder);
+        for (int i = 1; i <= 300; i++) {
+            float s = 0.01F * i;
+            float newX = helixX(s);
+            float newY = helixY(s);
+            float newZ = helixZ(s);
+
+            ModelInstance cylinder = new ModelInstance(cylinderModel);
+
+            // note: the Y and Z axes are inverted compared to the notation in Hatcher
+            cylinder.transform
+                .translate(newX, newZ + helixShift, newY)
+                .scale(0.1f, 0.4f, 0.1f);
+
+            instances.add(cylinder);
+
+            prevX = newX;
+            prevY = newY;
+            prevZ = newZ;
+        }
 
         return instances;
     }
