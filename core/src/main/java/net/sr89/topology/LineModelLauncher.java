@@ -76,8 +76,8 @@ public class LineModelLauncher extends ApplicationAdapter {
 
         // Rotate the shapes
         angle = deltaTime * 20f;
-        objectsToRotate.forEach(o -> o.transform.rotate(Vector3.Y, angle));
-        cylinderHelix.forEach(o -> o.transform.rotate(Vector3.Y, angle));
+//        objectsToRotate.forEach(o -> o.transform.rotate(Vector3.Y, angle));
+//        cylinderHelix.forEach(o -> o.transform.rotate(Vector3.Y, angle));
 
         // Render the models
         modelBatch.begin(camera);

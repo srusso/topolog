@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.CylinderShapeBuilder;
+import com.badlogic.gdx.math.Vector3;
 import net.sr89.topology.HexColors;
 
 import java.util.ArrayList;
@@ -25,12 +26,12 @@ public class BasicShapes {
         builder.setColor(Color.WHITE);
 
         float prevX = helixX(0F);
-        float prevY = helixY(0F);
+        float prevZ = helixZ(0F);
 
         for (int i = 1; i <= 100; i++) {
             float s = 0.01F * i;
             float newX = helixX(s);
-            float newY = helixY(s);
+            float newZ = helixZ(s);
 
             if (i % 100 >= 20 && i % 100 <= 35) {
                 builder.setColor(Color.RED);
@@ -38,11 +39,10 @@ public class BasicShapes {
                 builder.setColor(helixColor);
             }
 
-            // note: the Y and Z axes are inverted compared to the notation in Hatcher
-            builder.line(prevX, 0, prevY, newX, 0, newY);
+            builder.line(prevX, 0, prevZ, newX, 0, newZ);
 
             prevX = newX;
-            prevY = newY;
+            prevZ = newZ;
         }
 
         return modelBuilder.end();
@@ -72,8 +72,7 @@ public class BasicShapes {
                 builder.setColor(helixColor);
             }
 
-            // note: the Y and Z axes are inverted compared to the notation in Hatcher
-            builder.line(prevX, prevZ + helixShift, prevY, newX, newZ + helixShift, newY);
+            builder.line(prevX, prevY + helixShift, prevZ, newX, newY + helixShift, newZ);
 
             prevX = newX;
             prevY = newY;
@@ -93,8 +92,8 @@ public class BasicShapes {
 
         List<ModelInstance> instances = new ArrayList<>();
 
-        for (int i = 1; i <= 300; i++) {
-            float s = 0.01F * i;
+        for (int i = 1; i <= 100; i++) { // TODO restore to 300
+            float s = 0.1F * i; // TODO restore to 0.01
             float newX = helixX(s);
             float newY = helixY(s);
             float newZ = helixZ(s);
@@ -104,6 +103,8 @@ public class BasicShapes {
             // note: the Y and Z axes are inverted compared to the notation in Hatcher
             cylinder.transform
                 .translate(newX, newZ + helixShift, newY)
+                .rotate(Vector3.X, 60f)
+//                .rotate(Vector3.Z, 90f)
                 .scale(0.1f, 0.4f, 0.1f);
 
             instances.add(cylinder);
@@ -129,12 +130,15 @@ public class BasicShapes {
         return modelBuilder.end();
     }
 
+
+    // note: the Y and Z axes are inverted compared to the notation in Hatcher
+
     private static float helixZ(float s) {
-        return s;
+        return (float) Math.sin(2 * Math.PI * s);
     }
 
     private static float helixY(float s) {
-        return (float) Math.sin(2 * Math.PI * s);
+        return s;
     }
 
     private static float helixX(float s) {
