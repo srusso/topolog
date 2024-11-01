@@ -1,5 +1,6 @@
 package net.sr89.topology.shapes;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.VertexAttributes;
@@ -82,15 +83,14 @@ public class BasicShapes {
         return modelBuilder.end();
     }
 
-    public static List<ModelInstance> createCylinderHelix() {
+    public static CylinderHelix createCylinderHelix() {
         Model cylinderModel = cylinderModel();
 
         float prevX = helixX(0F);
         float prevY = helixY(0F);
         float prevZ = helixZ(0F);
-        final float helixShift = 0.7f; // how far up we are moving the covering space above the circle
 
-        List<ModelInstance> instances = new ArrayList<>();
+        List<MyCylinder> instances = new ArrayList<>();
 
         for (int i = 1; i <= 100; i++) { // TODO restore to 300
             float s = 0.1F * i; // TODO restore to 0.01
@@ -100,27 +100,21 @@ public class BasicShapes {
 
             ModelInstance cylinder = new ModelInstance(cylinderModel);
 
-            // note: the Y and Z axes are inverted compared to the notation in Hatcher
-            cylinder.transform
-                .translate(newX, newZ + helixShift, newY)
-                .rotate(Vector3.X, 60f)
-//                .rotate(Vector3.Z, 90f)
-                .scale(0.1f, 0.4f, 0.1f);
-
-            instances.add(cylinder);
+            instances.add(new MyCylinder(cylinder, prevX, prevY, prevZ, newX, newY, newZ));
 
             prevX = newX;
             prevY = newY;
             prevZ = newZ;
         }
 
-        return instances;
+        return new CylinderHelix(instances);
     }
 
     private static Model cylinderModel() {
         ModelBuilder modelBuilder = new ModelBuilder();
         modelBuilder.begin();
         Material material = new Material();
+        material.set();
         MeshPartBuilder builder = modelBuilder.part("cylinder", GL20.GL_TRIANGLES,
             VertexAttributes.Usage.Position | VertexAttributes.Usage.ColorUnpacked, material);
         builder.setColor(helixColor);

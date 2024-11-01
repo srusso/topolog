@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
 import net.sr89.topology.input.CameraMovementService;
+import net.sr89.topology.shapes.CylinderHelix;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,7 +27,7 @@ public class LineModelLauncher extends ApplicationAdapter {
     private ModelBatch modelBatch;
     private List<Model> models;
     private List<ModelInstance> objectsToRotate;
-    private List<ModelInstance> cylinderHelix;
+    private CylinderHelix cylinderHelix;
     private Environment environment;
     private float angle;
 
@@ -78,11 +79,12 @@ public class LineModelLauncher extends ApplicationAdapter {
         angle = deltaTime * 20f;
 //        objectsToRotate.forEach(o -> o.transform.rotate(Vector3.Y, angle));
 //        cylinderHelix.forEach(o -> o.transform.rotate(Vector3.Y, angle));
+        cylinderHelix.reposition(deltaTime);
 
         // Render the models
         modelBatch.begin(camera);
         objectsToRotate.forEach(o -> modelBatch.render(o, environment));
-        cylinderHelix.forEach(o -> modelBatch.render(o, environment));
+        cylinderHelix.forEach(o -> modelBatch.render(o.getCylinder(), environment));
 
         modelBatch.end();
     }
