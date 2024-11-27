@@ -2,6 +2,7 @@ package net.sr89.topology.shapes;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 import java.util.ArrayList;
@@ -31,20 +32,23 @@ public class CylinderHelix {
             float newY = cylinder.getNewY();
             float newZ = cylinder.getNewZ();
 
-            float initialRotation = (float) (Math.atan(newX / newY) + Math.PI / 2);
-            float r = radians.compute(cylinder.getId(), (id, rad) -> {
-               if (rad == null) {
-                   return initialRotation;
-               } else {
-                   return rad + deltaTime * 2f;
-               }
-            });
+            float initialRotation = (float) (Math.atan(newX / newZ) + Math.PI / 2);
 
             cylinder.getCylinder().transform
                 .setToTranslation(newX, newY + helixShift, newZ)
                 .rotate(Vector3.X, -90f)
-                .rotateRad(Vector3.Z, r)
+                .rotateRad(Vector3.Z, initialRotation)
                 .scale(0.05f, 0.2f, 0.05f);
         }
+    }
+
+    private float angleBetween(Vector3 a, Vector3 b) {
+        return (float) Math.acos(
+            (a.dot(b)) / (a.len() * b.len())
+        );
+    }
+
+    private float avg(float a, float b) {
+        return (a + b) / 2;
     }
 }
