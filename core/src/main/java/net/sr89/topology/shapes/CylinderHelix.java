@@ -32,23 +32,13 @@ public class CylinderHelix {
             float newY = cylinder.getNewY();
             float newZ = cylinder.getNewZ();
 
-            float initialRotation = (float) (Math.atan(newX / newZ) + Math.PI / 2);
+            float horizontalRotation = (float) (Math.atan(newX / newZ) + Math.PI / 2);
 
             cylinder.getCylinder().transform
                 .setToTranslation(newX, newY + helixShift, newZ)
                 .rotate(Vector3.X, -90f)
-                .rotateRad(Vector3.Z, initialRotation)
+                .rotateRad(Vector3.Z, horizontalRotation)
                 .scale(0.05f, 0.2f, 0.05f);
         }
-    }
-
-    private float angleBetween(Vector3 a, Vector3 b) {
-        return (float) Math.acos(
-            (a.dot(b)) / (a.len() * b.len())
-        );
-    }
-
-    private float avg(float a, float b) {
-        return (a + b) / 2;
     }
 }
