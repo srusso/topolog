@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
 import net.sr89.topology.input.CameraMovementService;
+import net.sr89.topology.math.Vectors;
 import net.sr89.topology.shapes.CylinderHelix;
 
 import java.util.Arrays;
@@ -77,12 +78,14 @@ public class LineModelLauncher extends ApplicationAdapter {
         camera.position.add(cameraMovementService.cameraMovement(deltaTime));
 //        camera.lookAt(cameraMovementService.getLookAt(camera.position, deltaTime));
         camera.direction.rotateRad(camera.up, cameraMovementService.horizontalRotation(deltaTime));
+        camera.direction.rotateRad(getCameraHorizontalAxis().rotate(camera.direction, 180), cameraMovementService.verticalRotation(deltaTime));
+        cameraMovementService.resetRotations();
         camera.update();
 
         // Rotate the shapes
         angle = deltaTime * 20f;
 //        objectsToRotate.forEach(o -> o.transform.rotate(Vector3.Y, angle));
-//        cylinderHelix.forEach(o -> o.getCylinder()..rotate(Vector3.Y, angle));
+//        cylinderHelix.forEach(o -> o.getCylinder().rotate(Vector3.Y, angle));
         cylinderHelix.reposition(deltaTime);
 
         // Render the models
@@ -91,6 +94,10 @@ public class LineModelLauncher extends ApplicationAdapter {
         cylinderHelix.forEach(o -> modelBatch.render(o.getCylinder(), environment));
 
         modelBatch.end();
+    }
+
+    private Vector3 getCameraHorizontalAxis() {
+        return new Vector3(camera.up).crs(camera.direction);
     }
 
     @Override

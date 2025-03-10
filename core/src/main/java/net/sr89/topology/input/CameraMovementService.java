@@ -83,9 +83,17 @@ public class CameraMovementService {
     }
 
     public float horizontalRotation(float deltaTime) {
-        float result = (currentScreenX - previousScreenX) * 0.00002f;
+        float result = -(currentScreenX - previousScreenX) * 0.002f;
+        return result;
+    }
+
+    public float verticalRotation(float deltaTime) {
+        float result = -(currentScreenY - previousScreenY) * 0.002f;
+        return result;
+    }
+
+    public void resetRotations() {
         previousScreenX = currentScreenX;
         previousScreenY = currentScreenY;
-        return result;
     }
 }
