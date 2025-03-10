@@ -49,7 +49,19 @@ public class CameraMovementService {
     }
 
     public Vector3 cameraMovement(float deltaTime) {
-        return new Vector3(movementDelta(leftRight, deltaTime), movementDelta(upDown, deltaTime), movementDelta(forward, deltaTime));
+        return new Vector3(movementDelta(leftRight, deltaTime), movementDelta(upDown, deltaTime), forwardMovementDelta(deltaTime));
+    }
+
+    public float upDownMovementDelta(float deltaTime) {
+        return movementDelta(upDown, deltaTime);
+    }
+
+    public float forwardMovementDelta(float deltaTime) {
+        return -movementDelta(forward, deltaTime);
+    }
+
+    public float leftRightMovementDelta(float deltaTime) {
+        return movementDelta(leftRight, deltaTime);
     }
 
     private float movementDelta(float directionMovement, float deltaTime) {

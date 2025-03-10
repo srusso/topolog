@@ -74,10 +74,15 @@ public class LineModelLauncher extends ApplicationAdapter {
         Gdx.gl.glClearColor(BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, 1f);
 
         final float deltaTime = Gdx.graphics.getDeltaTime();
-        camera.position.add(cameraMovementService.cameraMovement(deltaTime));
         Vector3 cameraHorizontalAxis = getCameraHorizontalAxis().rotate(camera.direction, 180);
+        Vector3 cameraDirection = new Vector3(camera.direction);
+        camera.position.add(cameraDirection.scl(cameraMovementService.forwardMovementDelta(deltaTime)));
+        camera.position.add(cameraHorizontalAxis.scl(cameraMovementService.leftRightMovementDelta(deltaTime)));
+        camera.position.add(new Vector3(Vector3.Y).scl(cameraMovementService.upDownMovementDelta(deltaTime)));
+
+        Vector3 cameraHorizontalAxis2 = getCameraHorizontalAxis().rotate(camera.direction, 180);
         Vector3 up = new Vector3(Vector3.Y);
-        camera.rotate(cameraHorizontalAxis, cameraMovementService.verticalRotation(deltaTime));
+        camera.rotate(cameraHorizontalAxis2, cameraMovementService.verticalRotation(deltaTime));
         camera.rotate(up, cameraMovementService.horizontalRotation(deltaTime));
         cameraMovementService.resetRotations();
         camera.update();
