@@ -1,6 +1,5 @@
 package net.sr89.topology.input;
 
-import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Vector3;
 
 public class CameraMovementService {
@@ -58,16 +57,12 @@ public class CameraMovementService {
     }
 
     public void mouseMoved(int screenX, int screenY) {
+        if (previousScreenY == 0) {
+            this.previousScreenX = screenX;
+            this.previousScreenY = screenY;
+        }
         this.currentScreenX = screenX;
         this.currentScreenY = screenY;
-    }
-
-    public Vector3 getLookAt(Vector3 cameraPosition, float deltaTime) {
-//        this.lookAt = new Vector3(helixZ(screenX + (20f * deltaTime)), 0, helixX(screenX + (20f * deltaTime)));
-        Vector3 pos = new Vector3(cameraPosition);
-        Vector3 la = new Vector3(lookAt);
-
-        return pos.add(la);
     }
 
     private static float helixZ(float s) {
