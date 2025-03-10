@@ -74,16 +74,8 @@ public class LineModelLauncher extends ApplicationAdapter {
         Gdx.gl.glClearColor(BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, 1f);
 
         final float deltaTime = Gdx.graphics.getDeltaTime();
-        Vector3 cameraHorizontalAxis = getCameraHorizontalAxis().rotate(camera.direction, 180);
-        Vector3 cameraDirection = new Vector3(camera.direction);
-        camera.position.add(cameraDirection.scl(cameraMovementService.forwardMovementDelta(deltaTime)));
-        camera.position.add(cameraHorizontalAxis.scl(cameraMovementService.leftRightMovementDelta(deltaTime)));
-        camera.position.add(new Vector3(Vector3.Y).scl(cameraMovementService.upDownMovementDelta(deltaTime)));
-
-        Vector3 cameraHorizontalAxis2 = getCameraHorizontalAxis().rotate(camera.direction, 180);
-        Vector3 up = new Vector3(Vector3.Y);
-        camera.rotate(cameraHorizontalAxis2, cameraMovementService.verticalRotation(deltaTime));
-        camera.rotate(up, cameraMovementService.horizontalRotation(deltaTime));
+        updateCameraPosition(deltaTime);
+        updateCameraRotation(deltaTime);
         cameraMovementService.resetRotations();
         camera.update();
 
@@ -99,6 +91,21 @@ public class LineModelLauncher extends ApplicationAdapter {
         cylinderHelix.forEach(o -> modelBatch.render(o.getCylinder(), environment));
 
         modelBatch.end();
+    }
+
+    private void updateCameraRotation(float deltaTime) {
+        Vector3 cameraHorizontalAxis = getCameraHorizontalAxis().rotate(camera.direction, 180);
+        Vector3 up = new Vector3(Vector3.Y);
+        camera.rotate(cameraHorizontalAxis, cameraMovementService.verticalRotation(deltaTime));
+        camera.rotate(up, cameraMovementService.horizontalRotation(deltaTime));
+    }
+
+    private void updateCameraPosition(float deltaTime) {
+        Vector3 cameraHorizontalAxis = getCameraHorizontalAxis().rotate(camera.direction, 180);
+        Vector3 cameraDirection = new Vector3(camera.direction);
+        camera.position.add(cameraDirection.scl(cameraMovementService.forwardMovementDelta(deltaTime)));
+        camera.position.add(cameraHorizontalAxis.scl(cameraMovementService.leftRightMovementDelta(deltaTime)));
+        camera.position.add(new Vector3(Vector3.Y).scl(cameraMovementService.upDownMovementDelta(deltaTime)));
     }
 
     private Vector3 getCameraHorizontalAxis() {
