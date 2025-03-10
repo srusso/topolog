@@ -18,6 +18,8 @@ import net.sr89.topology.shapes.CylinderHelix;
 import java.util.Arrays;
 import java.util.List;
 
+import static net.sr89.topology.math.Vectors.add;
+import static net.sr89.topology.math.Vectors.direction;
 import static net.sr89.topology.shapes.BasicShapes.*;
 import static net.sr89.topology.shapes.GridShape.createAxes;
 
@@ -73,12 +75,14 @@ public class LineModelLauncher extends ApplicationAdapter {
         final float deltaTime = Gdx.graphics.getDeltaTime();
 
         camera.position.add(cameraMovementService.cameraMovement(deltaTime));
+//        camera.lookAt(cameraMovementService.getLookAt(camera.position, deltaTime));
+        camera.direction.rotateRad(camera.up, cameraMovementService.horizontalRotation(deltaTime));
         camera.update();
 
         // Rotate the shapes
         angle = deltaTime * 20f;
 //        objectsToRotate.forEach(o -> o.transform.rotate(Vector3.Y, angle));
-//        cylinderHelix.forEach(o -> o.transform.rotate(Vector3.Y, angle));
+//        cylinderHelix.forEach(o -> o.getCylinder()..rotate(Vector3.Y, angle));
         cylinderHelix.reposition(deltaTime);
 
         // Render the models

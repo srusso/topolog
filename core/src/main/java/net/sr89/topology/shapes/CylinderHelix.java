@@ -1,11 +1,7 @@
 package net.sr89.topology.shapes;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
