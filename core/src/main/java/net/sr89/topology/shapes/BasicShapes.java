@@ -1,6 +1,5 @@
 package net.sr89.topology.shapes;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.VertexAttributes;
@@ -10,7 +9,6 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.CylinderShapeBuilder;
-import com.badlogic.gdx.math.Vector3;
 import net.sr89.topology.HexColors;
 
 import java.util.ArrayList;
@@ -93,14 +91,14 @@ public class BasicShapes {
         List<MyCylinder> instances = new ArrayList<>();
 
         for (int i = 1; i <= 100; i++) { // TODO restore to 300
-            float s = 0.1F * i; // TODO restore to 0.01
+            float s = 0.05F * i; // TODO restore to 0.01
             float newX = helixX(s);
             float newY = helixY(s);
             float newZ = helixZ(s);
 
             ModelInstance cylinder = new ModelInstance(cylinderModel);
 
-            instances.add(new MyCylinder(cylinder, prevX, prevY, prevZ, newX, newY, newZ));
+            instances.add(new MyCylinder(cylinder, s, prevX, prevY, prevZ, newX, newY, newZ));
 
             prevX = newX;
             prevY = newY;
@@ -123,7 +121,6 @@ public class BasicShapes {
 
         return modelBuilder.end();
     }
-
 
     // note: the Y and Z axes are inverted compared to the notation in Hatcher
 

@@ -55,7 +55,7 @@ public class LineModelLauncher extends ApplicationAdapter {
 
         models = Arrays.asList(
             createAxes(),
-            createHelix(),
+//            createHelix(),
             createUnitCircle()
         );
         objectsToRotate = models.stream().map(ModelInstance::new).toList();
@@ -82,7 +82,7 @@ public class LineModelLauncher extends ApplicationAdapter {
         // Rotate the shapes
         angle = deltaTime * 20f;
 //        objectsToRotate.forEach(o -> o.transform.rotate(Vector3.Y, angle));
-//        cylinderHelix.forEach(o -> o.getCylinder().rotate(Vector3.Y, angle));
+//        cylinderHelix.forEach(o -> o.getCylinder().transform.rotate(Vector3.Y, angle));
         cylinderHelix.reposition(deltaTime);
 
         // Render the models
