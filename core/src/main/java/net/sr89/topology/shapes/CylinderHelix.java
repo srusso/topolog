@@ -35,9 +35,12 @@ public class CylinderHelix {
 
             cylinder.getCylinder().transform
                 .setToTranslation(newX, newY + helixShift, newZ)
+                // Cylinders are by default "standing up", so we need to rotate them appropriately.
+                // Note that as we rotate the cylinder, its X/Y/Z axes are rotating with it.
+                // Initially, the axes correspond to the green(y)/blue(z)/red(x) axes drawn by GridShape.java
                 .rotate(Vector3.X, -90f)
                 .rotateRad(Vector3.Z, horizontalRotation)
-                .rotate(Vector3.Z.cpy().crs(Vector3.X.cpy()), 20f)
+                .rotate(Vector3.X, 30f)
                 .scale(0.05f, 0.2f, 0.05f);
         }
     }
