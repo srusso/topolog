@@ -88,6 +88,7 @@ public class BasicShapes {
 
         for (int i = 1; i <= 100; i++) { // TODO restore to 300
             float s = 0.05F * i; // TODO restore to 0.01
+            // TODO actually, s shouldn't be needed at all. This is only a proxy for the Y coordinate, based on the cylinder's "index".
 
             ModelInstance cylinder = new ModelInstance(cylinderModel);
 

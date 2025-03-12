@@ -28,20 +28,22 @@ public class CylinderHelix {
 
         for (MyCylinder cylinder: cylinders) {
             // TODO this "works" but it makes no sense. Please refactor "s + rads".
-            float newX = helixX(cylinder.s() + rads);
-            float newY = cylinder.s();
-            float newZ = helixZ(cylinder.s() + rads);
+            float y = cylinder.s();
+            float x = helixX(y + rads);
+            float z = helixZ(y + rads);
 
-            float horizontalRotation = (float) (Math.atan(newX / newZ) + Math.PI / 2);
+            float horizontalRotation = (float) (Math.atan(x / z) + Math.PI / 2);
+
+            final float slant = 15f;
 
             cylinder.cylinder().transform
-                .setToTranslation(newX, newY + helixShift, newZ)
+                .setToTranslation(x, y + helixShift, z)
                 // Cylinders are by default "standing up", so we need to rotate them appropriately.
                 // Note that as we rotate the cylinder, its X/Y/Z axes are rotating with it.
                 // Initially, the axes correspond to the green(y)/blue(z)/red(x) axes drawn by GridShape.java
                 .rotate(Vector3.X, -90f)
                 .rotateRad(Vector3.Z, horizontalRotation)
-                .rotate(Vector3.X, newZ >=0 ? 30f : -30f) // this is a bit messed up, I'm not sure why it's needed
+                .rotate(Vector3.X, z >=0 ? slant : -slant) // flipping signs is a bit messed up, I'm not sure why it's needed
                 .scale(0.05f, 0.2f, 0.05f);
         }
     }
