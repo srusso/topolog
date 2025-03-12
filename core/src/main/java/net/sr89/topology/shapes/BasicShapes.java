@@ -17,6 +17,9 @@ import java.util.List;
 public class BasicShapes {
     private final static Color helixColor = HexColors.GREEN_PASTEL;
 
+    private static final int cylinderCount = 400;
+
+    // TODO make this a "fat" circle using cylinders
     public static Model createUnitCircle() {
         ModelBuilder modelBuilder = new ModelBuilder();
         modelBuilder.begin();
@@ -27,12 +30,13 @@ public class BasicShapes {
         float prevX = helixX(0F);
         float prevZ = helixZ(0F);
 
-        for (int i = 1; i <= 100; i++) {
+        for (int i = 1; i <= cylinderCount; i++) {
             float s = 0.01F * i;
             float newX = helixX(s);
             float newZ = helixZ(s);
 
-            if (i % 100 >= 20 && i % 100 <= 35) {
+            // TODO after turning these into cylinders, put the same exact color logic in the helix
+            if (i  >= 80 && i <= 140) {
                 builder.setColor(Color.RED);
             } else {
                 builder.setColor(helixColor);
@@ -52,7 +56,7 @@ public class BasicShapes {
 
         List<MyCylinder> instances = new ArrayList<>();
 
-        for (int i = 1; i <= 500; i++) {
+        for (int i = 1; i <= cylinderCount; i++) {
             ModelInstance cylinder = new ModelInstance(cylinderModel);
 
             instances.add(new MyCylinder(cylinder, i));

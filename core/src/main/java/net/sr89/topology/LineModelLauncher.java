@@ -50,6 +50,7 @@ public class LineModelLauncher extends ApplicationAdapter {
 
         modelBatch = new ModelBatch();
 
+        // TODO get rid of this "models" variable. have axes and unit circle be separate, and only rotate the unit circle
         models = Arrays.asList(
             createAxes(),
 //            createHelix(),
