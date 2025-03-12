@@ -26,9 +26,12 @@ public class CylinderHelix {
             rads = rads + deltaTime * 0.02f;
         }
 
+        final int cylinderCount = cylinders.size();
+
         for (MyCylinder cylinder: cylinders) {
-            // TODO this "works" but it makes no sense. Please refactor "s + rads".
-            float y = cylinder.s();
+            float indexFloat = (float) cylinder.index();
+            float y = (indexFloat / cylinderCount) * 3F;
+            // TODO this "works" but it makes no sense. Please refactor "y + rads".
             float x = helixX(y + rads);
             float z = helixZ(y + rads);
 
@@ -44,7 +47,7 @@ public class CylinderHelix {
                 .rotate(Vector3.X, -90f)
                 .rotateRad(Vector3.Z, horizontalRotation)
                 .rotate(Vector3.X, z >=0 ? slant : -slant) // flipping signs is a bit messed up, I'm not sure why it's needed
-                .scale(0.05f, 0.2f, 0.05f);
+                .scale(0.05f, 0.1f, 0.05f);
         }
     }
 
