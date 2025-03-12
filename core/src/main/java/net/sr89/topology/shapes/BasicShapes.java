@@ -47,46 +47,12 @@ public class BasicShapes {
         return modelBuilder.end();
     }
 
-    public static Model createHelix() {
-        ModelBuilder modelBuilder = new ModelBuilder();
-        modelBuilder.begin();
-        MeshPartBuilder builder = modelBuilder.part("circleShape", GL20.GL_LINES,
-            VertexAttributes.Usage.Position | VertexAttributes.Usage.ColorPacked, new Material());
-        builder.setColor(helixColor);
-
-        float prevX = helixX(0F);
-        float prevY = helixY(0F);
-        float prevZ = helixZ(0F);
-        final float helixShift = 0.7f; // how far up we are moving the covering space above the circle
-
-        for (int i = 1; i <= 300; i++) {
-            float s = 0.01F * i;
-            float newX = helixX(s);
-            float newY = helixY(s);
-            float newZ = helixZ(s);
-
-            if (i % 100 >= 20 && i % 100 <= 35) {
-                builder.setColor(Color.RED);
-            } else {
-                builder.setColor(helixColor);
-            }
-
-            builder.line(prevX, prevY + helixShift, prevZ, newX, newY + helixShift, newZ);
-
-            prevX = newX;
-            prevY = newY;
-            prevZ = newZ;
-        }
-
-        return modelBuilder.end();
-    }
-
     public static CylinderHelix createCylinderHelix() {
         Model cylinderModel = cylinderModel();
 
         List<MyCylinder> instances = new ArrayList<>();
 
-        for (int i = 1; i <= 300; i++) {
+        for (int i = 1; i <= 500; i++) {
             ModelInstance cylinder = new ModelInstance(cylinderModel);
 
             instances.add(new MyCylinder(cylinder, i));
@@ -113,10 +79,6 @@ public class BasicShapes {
 
     private static float helixZ(float s) {
         return (float) Math.sin(2 * Math.PI * s);
-    }
-
-    private static float helixY(float s) {
-        return s;
     }
 
     private static float helixX(float s) {
