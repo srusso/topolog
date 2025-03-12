@@ -13,14 +13,11 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
 import net.sr89.topology.input.CameraMovementService;
-import net.sr89.topology.math.Vectors;
 import net.sr89.topology.shapes.CylinderHelix;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static net.sr89.topology.math.Vectors.add;
-import static net.sr89.topology.math.Vectors.direction;
 import static net.sr89.topology.shapes.BasicShapes.*;
 import static net.sr89.topology.shapes.GridShape.createAxes;
 
@@ -88,7 +85,7 @@ public class LineModelLauncher extends ApplicationAdapter {
         // Render the models
         modelBatch.begin(camera);
         objectsToRotate.forEach(o -> modelBatch.render(o, environment));
-        cylinderHelix.forEach(o -> modelBatch.render(o.getCylinder(), environment));
+        cylinderHelix.forEach(o -> modelBatch.render(o.cylinder(), environment));
 
         modelBatch.end();
     }

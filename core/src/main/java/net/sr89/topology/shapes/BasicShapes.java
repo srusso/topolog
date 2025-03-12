@@ -84,25 +84,14 @@ public class BasicShapes {
     public static CylinderHelix createCylinderHelix() {
         Model cylinderModel = cylinderModel();
 
-        float prevX = helixX(0F);
-        float prevY = helixY(0F);
-        float prevZ = helixZ(0F);
-
         List<MyCylinder> instances = new ArrayList<>();
 
         for (int i = 1; i <= 100; i++) { // TODO restore to 300
             float s = 0.05F * i; // TODO restore to 0.01
-            float newX = helixX(s);
-            float newY = helixY(s);
-            float newZ = helixZ(s);
 
             ModelInstance cylinder = new ModelInstance(cylinderModel);
 
-            instances.add(new MyCylinder(cylinder, s, prevX, prevY, prevZ, newX, newY, newZ));
-
-            prevX = newX;
-            prevY = newY;
-            prevZ = newZ;
+            instances.add(new MyCylinder(cylinder, s));
         }
 
         return new CylinderHelix(instances);

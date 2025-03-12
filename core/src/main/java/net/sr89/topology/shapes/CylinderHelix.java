@@ -28,13 +28,13 @@ public class CylinderHelix {
 
         for (MyCylinder cylinder: cylinders) {
             // TODO this "works" but it makes no sense. Please refactor "s + rads".
-            float newX = helixX(cylinder.getS() + rads);
-            float newY = cylinder.getNewY();
-            float newZ = helixZ(cylinder.getS() + rads);
+            float newX = helixX(cylinder.s() + rads);
+            float newY = cylinder.s();
+            float newZ = helixZ(cylinder.s() + rads);
 
             float horizontalRotation = (float) (Math.atan(newX / newZ) + Math.PI / 2);
 
-            cylinder.getCylinder().transform
+            cylinder.cylinder().transform
                 .setToTranslation(newX, newY + helixShift, newZ)
                 // Cylinders are by default "standing up", so we need to rotate them appropriately.
                 // Note that as we rotate the cylinder, its X/Y/Z axes are rotating with it.
