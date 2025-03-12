@@ -27,6 +27,7 @@ public class CylinderHelix {
         }
 
         for (MyCylinder cylinder: cylinders) {
+            // TODO this "works" but it makes no sense. Please refactor "s + rads".
             float newX = helixX(cylinder.getS() + rads);
             float newY = cylinder.getNewY();
             float newZ = helixZ(cylinder.getS() + rads);
@@ -40,7 +41,7 @@ public class CylinderHelix {
                 // Initially, the axes correspond to the green(y)/blue(z)/red(x) axes drawn by GridShape.java
                 .rotate(Vector3.X, -90f)
                 .rotateRad(Vector3.Z, horizontalRotation)
-                .rotate(Vector3.X, 30f)
+                .rotate(Vector3.X, newZ >=0 ? 30f : -30f) // this is a bit messed up, I'm not sure why it's needed
                 .scale(0.05f, 0.2f, 0.05f);
         }
     }
