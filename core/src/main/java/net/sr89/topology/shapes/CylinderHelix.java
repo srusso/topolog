@@ -1,5 +1,6 @@
 package net.sr89.topology.shapes;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 import java.util.List;
@@ -28,6 +29,8 @@ public class CylinderHelix {
 
         final int cylinderCount = cylinders.size();
 
+        float prevX = 0, prevY = 0, prevZ = 0;
+
         for (MyCylinder cylinder: cylinders) {
             float indexFloat = (float) cylinder.index();
             float y = (indexFloat / cylinderCount) * 3F;
@@ -35,9 +38,9 @@ public class CylinderHelix {
             float x = helixX(y + rads);
             float z = helixZ(y + rads);
 
-            float horizontalRotation = (float) (Math.atan(x / z) + Math.PI / 2);
+            final float horizontalRotation = (float) (Math.atan(x / z) + Math.PI / 2);
 
-            final float slant = 15f;
+            final float slant = calculateSlant(new Vector3(prevX, prevY, prevZ), new Vector3(x, y, z));
 
             cylinder.cylinder().transform
                 .setToTranslation(x, y + helixShift, z)
@@ -46,9 +49,23 @@ public class CylinderHelix {
                 // Initially, the axes correspond to the green(y)/blue(z)/red(x) axes drawn by GridShape.java
                 .rotate(Vector3.X, -90f)
                 .rotateRad(Vector3.Z, horizontalRotation)
-                .rotate(Vector3.X, z >=0 ? slant : -slant) // flipping signs is a bit messed up, I'm not sure why it's needed
+                .rotateRad(Vector3.X, z >= 0 ? slant : -slant) // flipping signs is a bit messed up, I'm not sure why it's needed
                 .scale(0.05f, 0.1f, 0.05f);
+
+            prevX = x;
+            prevY = y;
+            prevZ = z;
         }
+    }
+
+    // TODO only make this calculation once!
+    private float calculateSlant(Vector3 previousCylinderPosition, Vector3 currentCylinderPosition) {
+        var a = new Vector2(previousCylinderPosition.x, previousCylinderPosition.z);
+        var b = new Vector2(currentCylinderPosition.x, currentCylinderPosition.z);
+        var deltaH = a.dst(b);
+        var deltaY = currentCylinderPosition.y - previousCylinderPosition.y;
+        var angle = Math.atan(deltaY / deltaH);
+        return (float) angle;
     }
 
     private static float helixZ(float s) {

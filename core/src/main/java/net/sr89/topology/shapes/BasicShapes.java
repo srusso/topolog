@@ -86,7 +86,7 @@ public class BasicShapes {
 
         List<MyCylinder> instances = new ArrayList<>();
 
-        for (int i = 1; i <= 200; i++) {
+        for (int i = 1; i <= 300; i++) {
             ModelInstance cylinder = new ModelInstance(cylinderModel);
 
             instances.add(new MyCylinder(cylinder, i));
