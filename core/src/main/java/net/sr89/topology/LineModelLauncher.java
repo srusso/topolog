@@ -25,11 +25,13 @@ public class LineModelLauncher extends ApplicationAdapter {
 
     private PerspectiveCamera camera;
     private ModelBatch modelBatch;
-    private List<Model> models;
-    private List<ModelInstance> objectsToRotate;
     private CylinderHelix cylinderHelix;
     private Environment environment;
     private float angle;
+    private Model axesModel;
+    private Model unitCircleModel;
+    private ModelInstance axes;
+    private ModelInstance unitCircle;
 
     private final CameraMovementService cameraMovementService;
 
@@ -48,15 +50,13 @@ public class LineModelLauncher extends ApplicationAdapter {
         camera.far = 300f;
         camera.update();
 
+        axesModel = createAxes();
+        unitCircleModel = createUnitCircle();
+        axes = new ModelInstance(axesModel);
+        unitCircle = new ModelInstance(unitCircleModel);
+
         modelBatch = new ModelBatch();
 
-        // TODO get rid of this "models" variable. have axes and unit circle be separate, and only rotate the unit circle
-        models = Arrays.asList(
-            createAxes(),
-//            createHelix(),
-            createUnitCircle()
-        );
-        objectsToRotate = models.stream().map(ModelInstance::new).toList();
         cylinderHelix = createCylinderHelix();
 
         environment = new Environment();
@@ -79,14 +79,14 @@ public class LineModelLauncher extends ApplicationAdapter {
 
         // Rotate the shapes
         angle = deltaTime * 20f;
-//        objectsToRotate.forEach(o -> o.transform.rotate(Vector3.Y, angle));
-//        cylinderHelix.forEach(o -> o.getCylinder().transform.rotate(Vector3.Y, angle));
         cylinderHelix.reposition(deltaTime);
 
         // Render the models
         modelBatch.begin(camera);
-        objectsToRotate.forEach(o -> modelBatch.render(o, environment));
-        cylinderHelix.forEach(o -> modelBatch.render(o.cylinder(), environment));
+        unitCircle.transform.rotate(Vector3.Y, angle);
+        modelBatch.render(unitCircle, environment);
+        modelBatch.render(axes, environment);
+        cylinderHelix.render(modelBatch, environment);
 
         modelBatch.end();
     }
@@ -113,6 +113,7 @@ public class LineModelLauncher extends ApplicationAdapter {
     @Override
     public void dispose() {
         modelBatch.dispose();
-        models.forEach(Model::dispose);
+        axesModel.dispose();
+        unitCircleModel.dispose();
     }
 }

@@ -1,10 +1,11 @@
 package net.sr89.topology.shapes;
 
+import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 public class CylinderHelix {
     private final List<MyCylinder> cylinders;
@@ -14,8 +15,8 @@ public class CylinderHelix {
         this.cylinders = cylinders;
     }
 
-    public void forEach(Consumer<MyCylinder> action) {
-        cylinders.forEach(action);
+    public void render(ModelBatch modelBatch, Environment environment) {
+        cylinders.forEach(o -> modelBatch.render(o.cylinder(), environment));
     }
 
     public void reposition(float deltaTime) {
