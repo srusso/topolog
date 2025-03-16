@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
 import net.sr89.topology.input.CameraMovementService;
 import net.sr89.topology.shapes.CylinderHelix;
+import net.sr89.topology.shapes.UnitSphere;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,12 +27,12 @@ public class LineModelLauncher extends ApplicationAdapter {
     private PerspectiveCamera camera;
     private ModelBatch modelBatch;
     private CylinderHelix cylinderHelix;
+    private UnitSphere unitSphere;
     private Environment environment;
     private float angle;
     private Model axesModel;
-    private Model unitCircleModel;
+    private Model cylinderModel;
     private ModelInstance axes;
-    private ModelInstance unitCircle;
 
     private final CameraMovementService cameraMovementService;
 
@@ -50,14 +51,14 @@ public class LineModelLauncher extends ApplicationAdapter {
         camera.far = 300f;
         camera.update();
 
+        cylinderModel = cylinderModel();
         axesModel = createAxes();
-        unitCircleModel = createUnitCircle();
         axes = new ModelInstance(axesModel);
-        unitCircle = new ModelInstance(unitCircleModel);
 
         modelBatch = new ModelBatch();
 
-        cylinderHelix = createCylinderHelix();
+        cylinderHelix = createCylinderHelix(cylinderModel);
+        unitSphere = createUnitSphere(cylinderModel);
 
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
@@ -80,12 +81,12 @@ public class LineModelLauncher extends ApplicationAdapter {
         // Rotate the shapes
         angle = deltaTime * 20f;
         cylinderHelix.reposition(deltaTime);
+        unitSphere.reposition(deltaTime);
 
         // Render the models
         modelBatch.begin(camera);
-        unitCircle.transform.rotate(Vector3.Y, angle);
-        modelBatch.render(unitCircle, environment);
         modelBatch.render(axes, environment);
+        unitSphere.render(modelBatch, environment);
         cylinderHelix.render(modelBatch, environment);
 
         modelBatch.end();
@@ -114,6 +115,6 @@ public class LineModelLauncher extends ApplicationAdapter {
     public void dispose() {
         modelBatch.dispose();
         axesModel.dispose();
-        unitCircleModel.dispose();
+        cylinderModel.dispose();
     }
 }

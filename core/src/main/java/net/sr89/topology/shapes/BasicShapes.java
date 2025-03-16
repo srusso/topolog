@@ -19,41 +19,19 @@ public class BasicShapes {
 
     private static final int cylinderCount = 400;
 
-    // TODO make this a "fat" circle using cylinders
-    public static Model createUnitCircle() {
-        ModelBuilder modelBuilder = new ModelBuilder();
-        modelBuilder.begin();
-        MeshPartBuilder builder = modelBuilder.part("circleShape", GL20.GL_LINES,
-            VertexAttributes.Usage.Position | VertexAttributes.Usage.ColorUnpacked, new Material());
-        builder.setColor(Color.WHITE);
-
-        float prevX = helixX(0F);
-        float prevZ = helixZ(0F);
+    public static UnitSphere createUnitSphere(Model cylinderModel) {
+        List<MyCylinder> instances = new ArrayList<>();
 
         for (int i = 1; i <= cylinderCount; i++) {
-            float s = 0.01F * i;
-            float newX = helixX(s);
-            float newZ = helixZ(s);
+            ModelInstance cylinder = new ModelInstance(cylinderModel);
 
-            // TODO after turning these into cylinders, put the same exact color logic in the helix
-            if (i  >= 80 && i <= 140) {
-                builder.setColor(Color.RED);
-            } else {
-                builder.setColor(helixColor);
-            }
-
-            builder.line(prevX, 0, prevZ, newX, 0, newZ);
-
-            prevX = newX;
-            prevZ = newZ;
+            instances.add(new MyCylinder(cylinder, i));
         }
 
-        return modelBuilder.end();
+        return new UnitSphere(instances);
     }
 
-    public static CylinderHelix createCylinderHelix() {
-        Model cylinderModel = cylinderModel();
-
+    public static CylinderHelix createCylinderHelix(Model cylinderModel) {
         List<MyCylinder> instances = new ArrayList<>();
 
         for (int i = 1; i <= cylinderCount; i++) {
@@ -65,7 +43,7 @@ public class BasicShapes {
         return new CylinderHelix(instances);
     }
 
-    private static Model cylinderModel() {
+    public static Model cylinderModel() {
         ModelBuilder modelBuilder = new ModelBuilder();
         modelBuilder.begin();
         Material material = new Material();
