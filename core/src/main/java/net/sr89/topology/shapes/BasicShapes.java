@@ -56,14 +56,4 @@ public class BasicShapes {
 
         return modelBuilder.end();
     }
-
-    // note: the Y and Z axes are inverted compared to the notation in Hatcher
-
-    private static float helixZ(float s) {
-        return (float) Math.sin(2 * Math.PI * s);
-    }
-
-    private static float helixX(float s) {
-        return (float) Math.cos(2 * Math.PI * s);
-    }
 }
