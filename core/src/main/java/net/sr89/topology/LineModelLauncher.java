@@ -1,6 +1,5 @@
 package net.sr89.topology;
 
-import net.sr89.topology.input.CameraMovementService;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -13,22 +12,27 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
+import net.sr89.topology.input.CameraMovementService;
+import net.sr89.topology.shapes.CylinderHelix;
+import net.sr89.topology.shapes.UnitSphere;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static net.sr89.topology.shapes.BasicShapes.createHelix;
-import static net.sr89.topology.shapes.BasicShapes.createUnitCircle;
+import static net.sr89.topology.shapes.BasicShapes.*;
 import static net.sr89.topology.shapes.GridShape.createAxes;
 
 public class LineModelLauncher extends ApplicationAdapter {
 
     private PerspectiveCamera camera;
     private ModelBatch modelBatch;
-    private List<Model> models;
-    private List<ModelInstance> objectsToRender;
+    private CylinderHelix cylinderHelix;
+    private UnitSphere unitSphere;
     private Environment environment;
     private float angle;
+    private Model axesModel;
+    private Model cylinderModel;
+    private ModelInstance axes;
 
     private final CameraMovementService cameraMovementService;
 
@@ -41,20 +45,20 @@ public class LineModelLauncher extends ApplicationAdapter {
     @Override
     public void create() {
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.position.set(0f, 3f, 3f);
+        camera.position.set(0f, 7f, 7f);
         camera.lookAt(0, 0, 0);
         camera.near = 1f;
         camera.far = 300f;
         camera.update();
 
+        cylinderModel = cylinderModel();
+        axesModel = createAxes();
+        axes = new ModelInstance(axesModel);
+
         modelBatch = new ModelBatch();
 
-        models = Arrays.asList(
-            createAxes(),
-            createHelix(),
-            createUnitCircle()
-        );
-        objectsToRender = models.stream().map(ModelInstance::new).toList();
+        cylinderHelix = createCylinderHelix(cylinderModel);
+        unitSphere = createUnitSphere(cylinderModel);
 
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
@@ -69,23 +73,48 @@ public class LineModelLauncher extends ApplicationAdapter {
         Gdx.gl.glClearColor(BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, 1f);
 
         final float deltaTime = Gdx.graphics.getDeltaTime();
-
-        camera.position.add(cameraMovementService.cameraMovement(deltaTime));
+        updateCameraPosition(deltaTime);
+        updateCameraRotation(deltaTime);
+        cameraMovementService.resetRotations();
         camera.update();
 
         // Rotate the shapes
-        angle += deltaTime * 20f;
-        objectsToRender.forEach(o -> o.transform.setToRotation(Vector3.Y, angle));
+        angle = deltaTime * 20f;
+        cylinderHelix.reposition(deltaTime);
+        unitSphere.reposition(deltaTime);
 
         // Render the models
         modelBatch.begin(camera);
-        objectsToRender.forEach(o -> modelBatch.render(o, environment));
+        modelBatch.render(axes, environment);
+        unitSphere.render(modelBatch, environment);
+        cylinderHelix.render(modelBatch, environment);
+
         modelBatch.end();
+    }
+
+    private void updateCameraRotation(float deltaTime) {
+        Vector3 cameraHorizontalAxis = getCameraHorizontalAxis().rotate(camera.direction, 180);
+        Vector3 up = new Vector3(Vector3.Y);
+        camera.rotate(cameraHorizontalAxis, cameraMovementService.verticalRotation(deltaTime));
+        camera.rotate(up, cameraMovementService.horizontalRotation(deltaTime));
+    }
+
+    private void updateCameraPosition(float deltaTime) {
+        Vector3 cameraHorizontalAxis = getCameraHorizontalAxis().rotate(camera.direction, 180);
+        Vector3 cameraDirection = new Vector3(camera.direction);
+        camera.position.add(cameraDirection.scl(cameraMovementService.forwardMovementDelta(deltaTime)));
+        camera.position.add(cameraHorizontalAxis.scl(cameraMovementService.leftRightMovementDelta(deltaTime)));
+        camera.position.add(new Vector3(Vector3.Y).scl(cameraMovementService.upDownMovementDelta(deltaTime)));
+    }
+
+    private Vector3 getCameraHorizontalAxis() {
+        return new Vector3(camera.up).crs(camera.direction);
     }
 
     @Override
     public void dispose() {
         modelBatch.dispose();
-        models.forEach(Model::dispose);
+        axesModel.dispose();
+        cylinderModel.dispose();
     }
 }

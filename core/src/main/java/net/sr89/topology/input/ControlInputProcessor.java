@@ -13,10 +13,12 @@ public class ControlInputProcessor implements InputProcessor {
 
     }
 
+    private final CameraMovementService cameraMovementService;
     private final Map<Integer, MovementAction> movementActions;
 
     public ControlInputProcessor(CameraMovementService cameraMovementService) {
         this.movementActions = initMovementActions(cameraMovementService);
+        this.cameraMovementService = cameraMovementService;
     }
 
     private Map<Integer, MovementAction> initMovementActions(CameraMovementService cameraMovementService) {
@@ -61,6 +63,12 @@ public class ControlInputProcessor implements InputProcessor {
     }
 
     @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+        cameraMovementService.mouseMoved(screenX, screenY);
+        return true;
+    }
+
+    @Override
     public boolean keyTyped(char c) {
         return false;
     }
@@ -82,11 +90,6 @@ public class ControlInputProcessor implements InputProcessor {
 
     @Override
     public boolean touchDragged(int i, int i1, int i2) {
-        return false;
-    }
-
-    @Override
-    public boolean mouseMoved(int i, int i1) {
         return false;
     }
 
