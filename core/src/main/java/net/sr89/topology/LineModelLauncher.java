@@ -29,14 +29,13 @@ public class LineModelLauncher extends ApplicationAdapter {
     private CylinderHelix cylinderHelix;
     private UnitSphere unitSphere;
     private Environment environment;
-    private float angle;
     private Model axesModel;
     private Model cylinderModel;
     private ModelInstance axes;
 
     private final CameraMovementService cameraMovementService;
 
-    private final Color BACKGROUND_COLOR = HexColors.PINK_PASTEL;
+    private final Color BACKGROUND_COLOR = HexColors.VERY_DARK_BLUE;
 
     public LineModelLauncher(CameraMovementService cameraMovementService) {
         this.cameraMovementService = cameraMovementService;
@@ -63,8 +62,6 @@ public class LineModelLauncher extends ApplicationAdapter {
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
         environment.add(new DirectionalLight().set(1f, 1f, 1f, -1f, -0.8f, -0.2f));
-
-        angle = 0f;
     }
 
     @Override
@@ -79,7 +76,6 @@ public class LineModelLauncher extends ApplicationAdapter {
         camera.update();
 
         // Rotate the shapes
-        angle = deltaTime * 20f;
         cylinderHelix.reposition(deltaTime);
         unitSphere.reposition(deltaTime);
 

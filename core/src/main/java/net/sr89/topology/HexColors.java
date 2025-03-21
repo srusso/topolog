@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import java.util.HexFormat;
 
 public class HexColors {
-    public static final Color PINK_PASTEL = fromHexCode("#E7CCCC");
+    public static final Color VERY_DARK_BLUE = fromHexCode("#213339");
     public static final Color GREEN_PASTEL = fromHexCode("#A5B68D");
 
     private static Color fromHexCode(String hexCode) {
