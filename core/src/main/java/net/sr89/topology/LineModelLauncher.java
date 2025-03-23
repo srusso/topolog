@@ -16,9 +16,6 @@ import net.sr89.topology.input.CameraMovementService;
 import net.sr89.topology.shapes.CylinderHelix;
 import net.sr89.topology.shapes.UnitSphere;
 
-import java.util.Arrays;
-import java.util.List;
-
 import static net.sr89.topology.shapes.BasicShapes.*;
 import static net.sr89.topology.shapes.GridShape.createAxes;
 

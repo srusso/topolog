@@ -2,7 +2,6 @@ package net.sr89.topology.shapes;
 
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import net.sr89.topology.spaces.Sphere;
 
@@ -15,7 +14,6 @@ public abstract class Sphere1 implements Sphere {
     private final List<MyCylinder> cylinders;
     private float rads = 0;
 
-
     public Sphere1(List<MyCylinder> cylinders) {
         this.cylinders = cylinders;
     }
@@ -27,8 +25,10 @@ public abstract class Sphere1 implements Sphere {
     protected abstract float helixZ(int count, float indexFloat, float s);
 
     protected abstract float calculateSlant(int cylinderCount, float rads);
-    // how far up we are moving the covering space above the circle
 
+    /**
+     * How far up we are moving the covering space above the circle.
+      */
     protected abstract float upwardTranslation();
 
     protected abstract CylinderPosition calculatePosition(int count, int index, float rads);
@@ -43,7 +43,7 @@ public abstract class Sphere1 implements Sphere {
         if (rads == 0) {
             rads = (float) (Math.PI / 3);
         } else {
-            rads = rads + deltaTime * 0.02f;
+            rads = rads + deltaTime * 0.1f;
         }
 
         final int cylinderCount = cylinders.size();
