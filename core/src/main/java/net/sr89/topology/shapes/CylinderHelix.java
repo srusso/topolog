@@ -52,17 +52,4 @@ public class CylinderHelix extends Sphere1 {
     protected float upwardTranslation() {
         return 0.7F;
     }
-
-    @Override
-    protected CylinderPosition calculatePosition(int count, int index, float rads) {
-        float indexFloat = (float) index;
-        float y = helixY(count, indexFloat);
-        // TODO this "works" but it makes no sense. Please refactor "y + rads".
-        float x = helixX(count, index, y + rads);
-        float z = helixZ(count, index, y + rads);
-
-        final float horizontalRotation = (float) (Math.atan(x / z) + Math.PI / 2);
-
-        return new CylinderPosition(x, y, z, horizontalRotation);
-    }
 }

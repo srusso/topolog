@@ -34,16 +34,4 @@ public class UnitSphere extends Sphere1 {
     protected float upwardTranslation() {
         return 0F;
     }
-
-    @Override
-    protected CylinderPosition calculatePosition(int count, int index, float rads) {
-        float y = 0;
-        // TODO this "works" but it makes no sense. Please refactor "y + rads".
-        float x = helixX(count, index, y + rads);
-        float z = helixZ(count, index, y + rads);
-
-        final float horizontalRotation = (float) (Math.atan(x / z) + Math.PI / 2);
-
-        return new CylinderPosition(x, y, z, horizontalRotation);
-    }
 }

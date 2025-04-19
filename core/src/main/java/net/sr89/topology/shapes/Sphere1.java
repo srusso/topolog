@@ -31,7 +31,17 @@ public abstract class Sphere1 implements Sphere {
       */
     protected abstract float upwardTranslation();
 
-    protected abstract CylinderPosition calculatePosition(int count, int index, float rads);
+    protected CylinderPosition calculatePosition(int count, int index, float rads) {
+        float indexFloat = (float) index;
+        float y = helixY(count, indexFloat);
+        // TODO this "works" but it makes no sense. Please refactor "y + rads".
+        float x = helixX(count, index, y + rads);
+        float z = helixZ(count, index, y + rads);
+
+        final float horizontalRotation = (float) (Math.atan(x / z) + Math.PI / 2);
+
+        return new CylinderPosition(x, y, z, horizontalRotation);
+    }
 
     public void render(ModelBatch modelBatch, Environment environment) {
         cylinders.forEach(o -> modelBatch.render(o.cylinder(), environment));
