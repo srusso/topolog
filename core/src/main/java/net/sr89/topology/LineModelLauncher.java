@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
@@ -12,6 +13,10 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import net.sr89.topology.input.CameraMovementService;
 import net.sr89.topology.shapes.CylinderHelix;
 import net.sr89.topology.shapes.UnitSphere;
@@ -21,6 +26,7 @@ import static net.sr89.topology.shapes.GridShape.createAxes;
 
 public class LineModelLauncher extends ApplicationAdapter {
 
+    private Stage stage;
     private PerspectiveCamera camera;
     private ModelBatch modelBatch;
     private CylinderHelix cylinderHelix;
@@ -40,6 +46,21 @@ public class LineModelLauncher extends ApplicationAdapter {
 
     @Override
     public void create() {
+        stage = new Stage(new ScreenViewport());
+        Label.LabelStyle label1Style = new Label.LabelStyle();
+        int row_height = Gdx.graphics.getWidth() / 12;
+        int col_width = Gdx.graphics.getWidth() / 12;
+
+        BitmapFont myFont = new BitmapFont(Gdx.files.internal("bitmapfont/Amble-Regular-26.fnt"));
+        label1Style.font = myFont;
+        label1Style.fontColor = Color.RED;
+
+        Label label1 = new Label("S1 with covering space",label1Style);
+        label1.setSize(Gdx.graphics.getWidth(),row_height);
+        label1.setPosition(0,Gdx.graphics.getHeight()-row_height*2);
+        label1.setAlignment(Align.center);
+        stage.addActor(label1);
+
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(0f, 7f, 7f);
         camera.lookAt(0, 0, 0);
@@ -83,6 +104,9 @@ public class LineModelLauncher extends ApplicationAdapter {
         cylinderHelix.render(modelBatch, environment);
 
         modelBatch.end();
+
+        stage.act();
+        stage.draw();
     }
 
     private void updateCameraRotation(float deltaTime) {
