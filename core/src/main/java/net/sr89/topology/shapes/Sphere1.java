@@ -18,11 +18,31 @@ public abstract class Sphere1 implements Sphere {
         this.cylinders = cylinders;
     }
 
-    protected abstract float helixX(int count, float indexFloat, float s);
+    /**
+     *
+     * @param count The total cylinder count used to render this sphere
+     * @param index The index of the current cylinder, from 0 to count - 1
+     * @param rads The current rotation of this sphere around the Y axis, in radians
+     * @return The X coordinate of this cylinder
+     */
+    protected abstract float helixX(int count, float index, float rads);
 
-    protected abstract float helixY(int count, float indexFloat);
+    /**
+     *
+     * @param count The total cylinder count used to render this sphere
+     * @param index The index of the current cylinder, from 0 to count - 1
+     * @return The X coordinate of this cylinder
+     */
+    protected abstract float helixY(int count, float index);
 
-    protected abstract float helixZ(int count, float indexFloat, float s);
+    /**
+     *
+     * @param count The total cylinder count used to render this sphere
+     * @param index The index of the current cylinder, from 0 to count - 1
+     * @param rads The current rotation of this sphere around the Y axis, in radians
+     * @return The Z coordinate of this cylinder
+     */
+    protected abstract float helixZ(int count, float index, float rads);
 
     protected abstract float calculateSlant(int cylinderCount, float rads);
 
@@ -32,11 +52,9 @@ public abstract class Sphere1 implements Sphere {
     protected abstract float upwardTranslation();
 
     protected CylinderPosition calculatePosition(int count, int index, float rads) {
-        float indexFloat = (float) index;
-        float y = helixY(count, indexFloat);
-        // TODO this "works" but it makes no sense. Please refactor "y + rads".
-        float x = helixX(count, index, y + rads);
-        float z = helixZ(count, index, y + rads);
+        float y = helixY(count, index);
+        float x = helixX(count, index, rads);
+        float z = helixZ(count, index, rads);
 
         final float horizontalRotation = (float) (Math.atan(x / z) + Math.PI / 2);
 

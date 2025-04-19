@@ -14,18 +14,21 @@ public class CylinderHelix extends Sphere1 {
     }
 
     @Override
-    protected float helixX(int count, float indexFloat, float s) {
-        return (float) Math.cos(2 * Math.PI * s);
+    protected float helixX(int count, float index, float rads) {
+        // for the helix we want to make more than "one circle" while going up,
+        // so we decide the x and z coordinates based on the y coordinate and how many
+        // radians we want to rotate from the "base" position
+        return (float) Math.cos(2 * Math.PI * (helixY(count, index) + rads));
     }
 
     @Override
-    protected float helixY(int count, float indexFloat) {
-        return (indexFloat / count) * 3F;
+    protected float helixY(int count, float index) {
+        return (index / count) * 3F;
     }
 
     @Override
-    protected float helixZ(int count, float indexFloat, float s) {
-        return (float) Math.sin(2 * Math.PI * s);
+    protected float helixZ(int count, float index, float rads) {
+        return (float) Math.sin(2 * Math.PI * (helixY(count, index) + rads));
     }
 
     @Override

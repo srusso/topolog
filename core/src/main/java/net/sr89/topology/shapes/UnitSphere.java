@@ -11,18 +11,21 @@ public class UnitSphere extends Sphere1 {
     }
 
     @Override
-    protected float helixX(int count, float indexFloat, float s) {
-        return (float) Math.cos(2 * Math.PI * (indexFloat / count));
+    protected float helixX(int count, float index, float rads) {
+        // for the unit sphere, we are calculating the x and z coordinates based on
+        // where this cylinder is compared to the total cylinder count,
+        // because we want to make one circle (0-th cylinder is the same as count-th cylinder)
+        return (float) Math.cos(2 * Math.PI * (index / count));
     }
 
     @Override
-    protected float helixY(int count, float indexFloat) {
+    protected float helixY(int count, float index) {
         return 0F;
     }
 
     @Override
-    protected float helixZ(int count, float indexFloat, float s) {
-        return (float) Math.sin(2 * Math.PI * (indexFloat / count));
+    protected float helixZ(int count, float index, float rads) {
+        return (float) Math.sin(2 * Math.PI * (index / count));
     }
 
     @Override
