@@ -19,12 +19,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import net.sr89.topology.input.CameraMovementService;
-import net.sr89.topology.shapes.CylinderHelix;
-import net.sr89.topology.shapes.UnitSphere;
 import net.sr89.topology.worlds.S1WithCoveringSpace;
 import net.sr89.topology.worlds.World;
 
-import static net.sr89.topology.shapes.BasicShapes.*;
 import static net.sr89.topology.shapes.GridShape.createAxes;
 
 public class LineModelLauncher extends ApplicationAdapter {
@@ -51,7 +48,7 @@ public class LineModelLauncher extends ApplicationAdapter {
 
         int row_height = Gdx.graphics.getWidth() / 12;
         int col_width = Gdx.graphics.getWidth() / 12;
-        stage.addActor(getTitleLabel(row_height));
+        stage.addActor(getTitleLabel(row_height, col_width));
 
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(0f, 7f, 7f);
@@ -72,11 +69,14 @@ public class LineModelLauncher extends ApplicationAdapter {
         environment.add(new DirectionalLight().set(1f, 1f, 1f, -1f, -0.8f, -0.2f));
     }
 
-    private static Label getTitleLabel(int row_height) {
+    private static Label getTitleLabel(int row_height, int col_width) {
         Label title = new Label("S1 with covering space", getTitleStyle());
-        title.setSize(Gdx.graphics.getWidth(), row_height);
-        title.setPosition(0, Gdx.graphics.getHeight() - row_height * 2);
-        title.setAlignment(Align.center);
+        title.setSize(col_width, row_height);
+        title.setPosition(
+            col_width / 2F,
+            Gdx.graphics.getHeight() - (row_height)
+        );
+        title.setAlignment(Align.left);
         return title;
     }
 
@@ -98,11 +98,8 @@ public class LineModelLauncher extends ApplicationAdapter {
         cameraMovementService.resetRotations();
         camera.update();
 
-        // Rotate the shapes
         s1WithCoveringSpace.reposition(deltaTime);
 
-
-        // Render the models
         modelBatch.begin(camera);
         modelBatch.render(axes, environment);
         s1WithCoveringSpace.render(modelBatch, environment);
