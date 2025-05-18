@@ -15,11 +15,14 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import net.sr89.topology.input.CameraMovementService;
 import net.sr89.topology.shapes.CylinderHelix;
 import net.sr89.topology.shapes.UnitSphere;
+import net.sr89.topology.worlds.S1WithCoveringSpace;
+import net.sr89.topology.worlds.World;
 
 import static net.sr89.topology.shapes.BasicShapes.*;
 import static net.sr89.topology.shapes.GridShape.createAxes;
@@ -29,11 +32,9 @@ public class LineModelLauncher extends ApplicationAdapter {
     private Stage stage;
     private PerspectiveCamera camera;
     private ModelBatch modelBatch;
-    private CylinderHelix cylinderHelix;
-    private UnitSphere unitSphere;
+    private World s1WithCoveringSpace;
     private Environment environment;
     private Model axesModel;
-    private Model cylinderModel;
     private ModelInstance axes;
 
     private final CameraMovementService cameraMovementService;
@@ -47,19 +48,10 @@ public class LineModelLauncher extends ApplicationAdapter {
     @Override
     public void create() {
         stage = new Stage(new ScreenViewport());
-        Label.LabelStyle label1Style = new Label.LabelStyle();
+
         int row_height = Gdx.graphics.getWidth() / 12;
         int col_width = Gdx.graphics.getWidth() / 12;
-
-        BitmapFont myFont = new BitmapFont(Gdx.files.internal("bitmapfont/Amble-Regular-26.fnt"));
-        label1Style.font = myFont;
-        label1Style.fontColor = Color.RED;
-
-        Label label1 = new Label("S1 with covering space",label1Style);
-        label1.setSize(Gdx.graphics.getWidth(),row_height);
-        label1.setPosition(0,Gdx.graphics.getHeight()-row_height*2);
-        label1.setAlignment(Align.center);
-        stage.addActor(label1);
+        stage.addActor(getTitleLabel(row_height));
 
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(0f, 7f, 7f);
@@ -68,18 +60,31 @@ public class LineModelLauncher extends ApplicationAdapter {
         camera.far = 300f;
         camera.update();
 
-        cylinderModel = cylinderModel();
         axesModel = createAxes();
         axes = new ModelInstance(axesModel);
 
         modelBatch = new ModelBatch();
 
-        cylinderHelix = createCylinderHelix(cylinderModel);
-        unitSphere = createUnitSphere(cylinderModel);
+        s1WithCoveringSpace = new S1WithCoveringSpace();
 
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
         environment.add(new DirectionalLight().set(1f, 1f, 1f, -1f, -0.8f, -0.2f));
+    }
+
+    private static Label getTitleLabel(int row_height) {
+        Label title = new Label("S1 with covering space", getTitleStyle());
+        title.setSize(Gdx.graphics.getWidth(), row_height);
+        title.setPosition(0, Gdx.graphics.getHeight() - row_height * 2);
+        title.setAlignment(Align.center);
+        return title;
+    }
+
+    private static LabelStyle getTitleStyle() {
+        LabelStyle labelStyle = new LabelStyle();
+        labelStyle.font = new BitmapFont(Gdx.files.internal("bitmapfont/Amble-Regular-26.fnt"));
+        labelStyle.fontColor = Color.RED;
+        return labelStyle;
     }
 
     @Override
@@ -94,14 +99,13 @@ public class LineModelLauncher extends ApplicationAdapter {
         camera.update();
 
         // Rotate the shapes
-        cylinderHelix.reposition(deltaTime);
-        unitSphere.reposition(deltaTime);
+        s1WithCoveringSpace.reposition(deltaTime);
+
 
         // Render the models
         modelBatch.begin(camera);
         modelBatch.render(axes, environment);
-        unitSphere.render(modelBatch, environment);
-        cylinderHelix.render(modelBatch, environment);
+        s1WithCoveringSpace.render(modelBatch, environment);
 
         modelBatch.end();
 
@@ -132,6 +136,7 @@ public class LineModelLauncher extends ApplicationAdapter {
     public void dispose() {
         modelBatch.dispose();
         axesModel.dispose();
-        cylinderModel.dispose();
+        stage.dispose();
+        s1WithCoveringSpace.dispose();
     }
 }
