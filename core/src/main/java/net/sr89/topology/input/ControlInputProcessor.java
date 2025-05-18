@@ -3,6 +3,7 @@ package net.sr89.topology.input;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import net.sr89.topology.LineModelLauncher;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,9 +15,11 @@ public class ControlInputProcessor implements InputProcessor {
     }
 
     private final CameraMovementService cameraMovementService;
+    private final LineModelLauncher launcher;
     private final Map<Integer, MovementAction> movementActions;
 
-    public ControlInputProcessor(CameraMovementService cameraMovementService) {
+    public ControlInputProcessor(LineModelLauncher launcher, CameraMovementService cameraMovementService) {
+        this.launcher = launcher;
         this.movementActions = initMovementActions(cameraMovementService);
         this.cameraMovementService = cameraMovementService;
     }
@@ -57,6 +60,10 @@ public class ControlInputProcessor implements InputProcessor {
         if (action != null) {
             action.onKeyUp.run();
             return true;
+        }
+
+        if (i >= Input.Keys.NUM_1 || i <= Input.Keys.NUM_9) {
+            launcher.selectWorld(i - Input.Keys.NUM_0);
         }
 
         return false;
