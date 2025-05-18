@@ -30,7 +30,6 @@ public class LineModelLauncher extends ApplicationAdapter {
     private Stage stage;
     private PerspectiveCamera camera;
     private ModelBatch modelBatch;
-    private Label titleLabel;
     private World s1WithCoveringSpace;
     private World s2FundamentalGroup;
     private World currentWorld;
@@ -72,27 +71,6 @@ public class LineModelLauncher extends ApplicationAdapter {
         environment.add(new DirectionalLight().set(1f, 1f, 1f, -1f, -0.8f, -0.2f));
     }
 
-    private Label getTitleLabel() {
-        final int row_height = Gdx.graphics.getWidth() / 12;
-        final int col_width = Gdx.graphics.getWidth() / 12;
-
-        Label title = new Label(currentWorld.getWorldTitle(), getTitleStyle());
-        title.setSize(col_width, row_height);
-        title.setPosition(
-            col_width / 2F,
-            Gdx.graphics.getHeight() - (row_height)
-        );
-        title.setAlignment(Align.left);
-        return title;
-    }
-
-    private LabelStyle getTitleStyle() {
-        LabelStyle labelStyle = new LabelStyle();
-        labelStyle.font = new BitmapFont(Gdx.files.internal("bitmapfont/Amble-Regular-26.fnt"));
-        labelStyle.fontColor = Color.RED;
-        return labelStyle;
-    }
-
     @Override
     public void render() {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -114,6 +92,19 @@ public class LineModelLauncher extends ApplicationAdapter {
 
         stage.act();
         stage.draw();
+    }
+
+    public void selectWorld(int selection) {
+        stage.clear();
+        switch (selection) {
+            case 1:
+                currentWorld = s1WithCoveringSpace;
+                break;
+            case 2:
+                currentWorld = s2FundamentalGroup;
+                break;
+        }
+        stage.addActor(getTitleLabel());
     }
 
     private void updateCameraRotation(float deltaTime) {
@@ -143,17 +134,24 @@ public class LineModelLauncher extends ApplicationAdapter {
         s1WithCoveringSpace.dispose();
     }
 
-    public void selectWorld(int selection) {
-        stage.clear();
-        switch (selection) {
-            case 1:
-                currentWorld = s1WithCoveringSpace;
-                break;
-            case 2:
-                currentWorld = s2FundamentalGroup;
-                break;
-        }
-        titleLabel = getTitleLabel();
-        stage.addActor(titleLabel);
+    private Label getTitleLabel() {
+        final int row_height = Gdx.graphics.getWidth() / 12;
+        final int col_width = Gdx.graphics.getWidth() / 12;
+
+        Label title = new Label(currentWorld.getWorldTitle(), getTitleStyle());
+        title.setSize(col_width, row_height);
+        title.setPosition(
+            col_width / 2F,
+            Gdx.graphics.getHeight() - (row_height)
+        );
+        title.setAlignment(Align.left);
+        return title;
+    }
+
+    private LabelStyle getTitleStyle() {
+        LabelStyle labelStyle = new LabelStyle();
+        labelStyle.font = new BitmapFont(Gdx.files.internal("bitmapfont/Amble-Regular-26.fnt"));
+        labelStyle.fontColor = Color.RED;
+        return labelStyle;
     }
 }
