@@ -14,18 +14,21 @@ public class CylinderHelix extends Sphere1 {
     }
 
     @Override
-    protected float helixX(int count, float indexFloat, float s) {
-        return (float) Math.cos(2 * Math.PI * s);
+    protected float helixX(int count, float index, float rads) {
+        // for the helix we want to make more than "one circle" while going up,
+        // so we decide the x and z coordinates based on the y coordinate and how many
+        // radians we want to rotate from the "base" position
+        return (float) Math.cos(2 * Math.PI * (helixY(count, index) + rads));
     }
 
     @Override
-    protected float helixY(int count, float indexFloat) {
-        return (indexFloat / count) * 3F;
+    protected float helixY(int count, float index) {
+        return (index / count) * 3F;
     }
 
     @Override
-    protected float helixZ(int count, float indexFloat, float s) {
-        return (float) Math.sin(2 * Math.PI * s);
+    protected float helixZ(int count, float index, float rads) {
+        return (float) Math.sin(2 * Math.PI * (helixY(count, index) + rads));
     }
 
     @Override
@@ -51,18 +54,5 @@ public class CylinderHelix extends Sphere1 {
     @Override
     protected float upwardTranslation() {
         return 0.7F;
-    }
-
-    @Override
-    protected CylinderPosition calculatePosition(int count, int index, float rads) {
-        float indexFloat = (float) index;
-        float y = helixY(count, indexFloat);
-        // TODO this "works" but it makes no sense. Please refactor "y + rads".
-        float x = helixX(count, index, y + rads);
-        float z = helixZ(count, index, y + rads);
-
-        final float horizontalRotation = (float) (Math.atan(x / z) + Math.PI / 2);
-
-        return new CylinderPosition(x, y, z, horizontalRotation);
     }
 }
