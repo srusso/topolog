@@ -53,10 +53,7 @@ public class LineModelLauncher extends ApplicationAdapter {
         s1WithCoveringSpace = new S1WithCoveringSpace();
         s2FundamentalGroup = new S2FundamentalGroup();
 
-        currentWorld = s1WithCoveringSpace;
-
-        titleLabel = getTitleLabel();
-        stage.addActor(titleLabel);
+        selectWorld(1);
 
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(0f, 7f, 7f);
