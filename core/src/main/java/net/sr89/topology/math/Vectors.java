@@ -4,25 +4,31 @@ import com.badlogic.gdx.math.Vector3;
 
 public class Vectors {
     /**
-     * Adds vector b to vector a, returning a new Vector3 object.
-     * NOTE: To eliminate all allocation, this method signature would need to change
-     * to accept a mutable 'result' vector as an argument. This implementation
-     * preserves the signature while optimizing intermediate object creation.
+     * Adds vector b to vector a, storing the result in the provided mutable 'result' vector.
+     * This method avoids creating new Vector3 objects, minimizing garbage collection overhead.
+     *
+     * @param a The first vector.
+     * @param b The second vector.
+     * @param result The mutable vector to store the sum in.
+     * @return The 'result' vector after the operation.
      */
-    public static Vector3 add(Vector3 a, Vector3 b) {
-        Vector3 result = new Vector3(a);
-        result.add(b);
+    public static Vector3 add(Vector3 a, Vector3 b, Vector3 result) {
+        result.set(a).add(b);
         return result;
     }
 
     /**
-     * Calculates the direction vector from 'from' to 'to', returning a new Vector3 object.
-     * NOTE: To eliminate all allocation, this method signature would need to change
-     * to accept a mutable 'result' vector as an argument.
+     * Calculates the direction vector from 'from' to 'to', storing the result in the provided mutable 'result' vector.
+     * This method avoids creating new Vector3 objects, minimizing garbage collection overhead.
+     *
+     * @param from The starting vector.
+     * @param to The ending vector.
+     * @param result The mutable vector to store the difference (to - from) in.
+     * @return The 'result' vector after the operation.
      */
-    public static Vector3 direction(Vector3 from, Vector3 to) {
-        Vector3 result = new Vector3(to);
-        result.sub(from);
+    public static Vector3 direction(Vector3 from, Vector3 to, Vector3 result) {
+        // Set result to 'to', then subtract 'from' from it.
+        result.set(to).sub(from);
         return result;
     }
 }
