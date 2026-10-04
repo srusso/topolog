@@ -20,7 +20,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import net.sr89.topology.input.CameraMovementService;
 import net.sr89.topology.worlds.S1WithCoveringSpace;
-import net.sr89.topology.worlds.S2FundamentalGroup;
+import net.sr89.topology.worlds.TorusWithFundamentalGroup;
 import net.sr89.topology.worlds.World;
 
 import static net.sr89.topology.shapes.GridShape.createAxes;
@@ -50,7 +50,7 @@ public class LineModelLauncher extends ApplicationAdapter {
         stage = new Stage(new ScreenViewport());
 
         s1WithCoveringSpace = new S1WithCoveringSpace();
-        s2FundamentalGroup = new S2FundamentalGroup();
+        s2FundamentalGroup = new TorusWithFundamentalGroup();
 
         selectWorld(1);
 
