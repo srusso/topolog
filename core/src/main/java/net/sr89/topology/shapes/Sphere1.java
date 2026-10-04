@@ -56,7 +56,11 @@ public abstract class Sphere1 implements Sphere {
         float x = helixX(count, index, rads);
         float z = helixZ(count, index, rads);
 
-        final float horizontalRotation = (float) (Math.atan(x / z) + Math.PI / 2);
+        // Angle of the cylinder around the Y axis. atan2 keeps the quadrant (and z == 0 is fine), so
+        // every cylinder's axis points consistently in the same direction along the curve.
+        // The negation is because rotating about the (rotated) local Z axis goes against the usual
+        // counter-clockwise-in-the-XZ-plane angle.
+        final float horizontalRotation = (float) -Math.atan2(z, x);
 
         return new CylinderPosition(x, y, z, horizontalRotation);
     }
@@ -89,7 +93,9 @@ public abstract class Sphere1 implements Sphere {
                 // Initially, the axes correspond to the green(y)/blue(z)/red(x) axes drawn by GridShape.java
                 .rotate(Vector3.X, -90f)
                 .rotateRad(Vector3.Z, position.horizontalRotation)
-                .rotateRad(Vector3.X, position.z >= 0 ? slant : -slant) // flipping signs is a bit messed up, I'm not sure why it's needed
+                // Tilt along the curve; slant is the (positive) upward angle, and our axis points
+                // against the direction of travel, so we tilt by -slant.
+                .rotateRad(Vector3.X, -slant)
                 .scale(0.05f, 0.1f, 0.05f);
         }
     }
