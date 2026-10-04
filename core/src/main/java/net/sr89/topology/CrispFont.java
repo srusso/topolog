@@ -1,5 +1,6 @@
 package net.sr89.topology;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -38,14 +39,21 @@ final class CrispFont {
      * @param size        the height of the letters, in units of the interface
      * @param density     how many pixels there are in a unit of the interface (2 on a Retina screen)
      * @param extra       a character to add to the font, drawn as a round dot as big as a capital letter
+     * @param markup      whether the text can have colors, with the markup of libgdx
      */
-    static CrispFont create(String family, float size, float density, char extra) {
+    static CrispFont create(String family, float size, float density, char extra, boolean markup) {
         // use Java2D without opening a window (which would also not work with how the application starts on macOS)
         System.setProperty("java.awt.headless", "true");
-        return new CrispFont(family, size, density, extra);
+        return new CrispFont(family, size, density, extra, markup);
     }
 
-    private CrispFont(String family, float size, float density, char extra) {
+    /** How many pixels there are in a unit of the interface (2 on a Retina screen). */
+    static float density() {
+        final int width = Gdx.graphics.getWidth();
+        return width > 0 ? Math.max(1f, (float) Gdx.graphics.getBackBufferWidth() / width) : 1f;
+    }
+
+    private CrispFont(String family, float size, float density, char extra, boolean markup) {
         final int pixelSize = Math.max(8, Math.round(size * density));
         final Font awtFont = new Font(family, Font.PLAIN, pixelSize);
 
@@ -141,7 +149,7 @@ final class CrispFont {
         data.descent = -deepest;
         data.down = -lineHeight;
         data.spaceXadvance = spaceAdvance;
-        data.markupEnabled = true;
+        data.markupEnabled = markup;
         data.setScale(1f / density);
 
         final Array<TextureRegion> regions = Array.with(new TextureRegion(texture));

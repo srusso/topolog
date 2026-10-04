@@ -38,9 +38,7 @@ public class ExplanationText implements Disposable {
     public ExplanationText() {
         CrispFont crisp = null;
         try {
-            final int width = Gdx.graphics.getWidth();
-            final float density = width > 0 ? Math.max(1f, (float) Gdx.graphics.getBackBufferWidth() / width) : 1f;
-            crisp = CrispFont.create(java.awt.Font.SANS_SERIF, SIZE, density, BALL);
+            crisp = CrispFont.create(java.awt.Font.SANS_SERIF, SIZE, CrispFont.density(), BALL, true);
         } catch (Throwable problem) {
             Gdx.app.error("ExplanationText", "Can't make a sharp font, using the font of the titles", problem);
         }

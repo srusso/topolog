@@ -56,6 +56,7 @@ public class TopologyApp extends ApplicationAdapter {
     private World currentWorld;
     private Environment environment;
     private BitmapFont titleFont;
+    private CrispFont sharpTitleFont;
     private Label titleLabel;
     private Table titleRoot;
     private Cell<Label> titleCell;
@@ -75,6 +76,8 @@ public class TopologyApp extends ApplicationAdapter {
     private static final float MAX_PITCH = 89f;
 
     private static final float TITLE_PADDING = 24f;
+    /** The height of the letters of the titles, in units of the interface. */
+    private static final float TITLE_SIZE = 24f;
     private static final float EXPLANATION_PADDING = 12f;
     private static final float MAX_EXPLANATION_WIDTH = 620f;
     private static final String EXPLANATION_HINT = "[LIGHT_GRAY]Press [WHITE]E[LIGHT_GRAY] to explain this world[]";
@@ -88,7 +91,7 @@ public class TopologyApp extends ApplicationAdapter {
     public void create() {
         stage = new Stage(new ScreenViewport());
 
-        titleFont = new BitmapFont(Gdx.files.internal("bitmapfont/Amble-Regular-26.fnt"));
+        titleFont = createTitleFont();
         titleLabel = new Label("", new LabelStyle(titleFont, Color.RED));
         titleRoot = new Table();
         titleRoot.setFillParent(true);
@@ -152,6 +155,19 @@ public class TopologyApp extends ApplicationAdapter {
         gallery = new WorldGallery(galleryEntries, environment, modelBatch, titleLabel.getStyle());
         stage.addActor(gallery.getNumbers());
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+    }
+
+    /** A font drawn at the size of the pixels of the screen, so the text is sharp. If that doesn't work, a font that is a picture. */
+    private BitmapFont createTitleFont() {
+        try {
+            sharpTitleFont = CrispFont.create(java.awt.Font.SANS_SERIF, TITLE_SIZE, CrispFont.density(), '\uE000', false);
+            return sharpTitleFont.getFont();
+        } catch (Throwable problem) {
+            Gdx.app.error("TopologyApp", "Can't make a sharp font, using a font that is a picture", problem);
+            final BitmapFont font = new BitmapFont(Gdx.files.internal("bitmapfont/Amble-Regular-26.fnt"));
+            font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+            return font;
+        }
     }
 
     @Override
@@ -273,7 +289,11 @@ public class TopologyApp extends ApplicationAdapter {
         modelBatch.dispose();
         axesModel.dispose();
         stage.dispose();
-        titleFont.dispose();
+        if (sharpTitleFont != null) {
+            sharpTitleFont.dispose();
+        } else {
+            titleFont.dispose();
+        }
         explanationText.dispose();
         panelTexture.dispose();
         worlds.forEach(World::dispose);
