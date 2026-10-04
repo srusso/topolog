@@ -10,13 +10,12 @@ import com.badlogic.gdx.Gdx;
  */
 public class Launcher extends ApplicationAdapter {
 
-    private static final CameraMovementService CAMERA_MOVEMENT_SERVICE = new CameraMovementService();
-    TopologyApp adapter = new TopologyApp(CAMERA_MOVEMENT_SERVICE);
+    private final TopologyApp adapter = new TopologyApp(new CameraMovementService());
 
     @Override
     public void create() {
         adapter.create();
-        Gdx.input.setInputProcessor(new ControlInputProcessor(adapter, CAMERA_MOVEMENT_SERVICE));
+        Gdx.input.setInputProcessor(new ControlInputProcessor(adapter::selectWorld));
     }
 
     @Override

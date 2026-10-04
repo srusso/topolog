@@ -53,6 +53,8 @@ public class TopologyApp extends ApplicationAdapter {
 
     @Override
     public void create() {
+        cameraMovementService.captureMouse();
+
         stage = new Stage(new ScreenViewport());
 
         titleFont = new BitmapFont(Gdx.files.internal("bitmapfont/Amble-Regular-26.fnt"));
@@ -88,9 +90,9 @@ public class TopologyApp extends ApplicationAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
         final float deltaTime = Gdx.graphics.getDeltaTime();
+        cameraMovementService.update();
         updateCameraPosition(deltaTime);
         updateCameraRotation();
-        cameraMovementService.resetRotations();
         camera.update();
 
         currentWorld.reposition(deltaTime);

@@ -1,93 +1,70 @@
 package net.sr89.topology.input;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.math.MathUtils;
+
+/**
+ * Turns the keyboard and mouse state into camera movement. Everything is polled each frame, so
+ * there's no key state to get out of sync (e.g. with two opposite keys held, or a missed key release).
+ */
 public class CameraMovementService {
-    private float forward = 0; // forward == 1, backward == -1
-    private float leftRight = 0; // left == -1, right == 1
-    private float upDown = 0; // up == 1, down == -1
     private static final float DEGREES_PER_PIXEL = 0.2f;
     private static final float MOVEMENT_SPEED = 20f;
 
-    private boolean hasPreviousMousePosition = false;
-    private int previousScreenX;
-    private int previousScreenY;
-    private float yawPixels = 0;
-    private float pitchPixels = 0;
+    private boolean seenFirstMouseMove = false;
+    private int yawPixels = 0;
+    private int pitchPixels = 0;
 
-    public void beginMovementForward() {
-        forward = -1;
-    }
-
-    public void beginMovementBackward() {
-        forward = 1;
-    }
-
-    public void beginMovementUp() {
-        upDown = 1;
-    }
-
-    public void beginMovementDown() {
-        upDown = -1;
-    }
-
-    public void beginMovementLeft() {
-        leftRight = -1;
-    }
-
-    public void beginMovementRight() {
-        leftRight = 1;
-    }
-
-    public void stopMovementForwardBackward() {
-        forward = 0;
-    }
-
-    public void stopMovementLeftRight() {
-        leftRight = 0;
-    }
-
-    public void stopMovementUpDown() {
-        upDown = 0;
-    }
-
-    public float upDownMovementDelta(float deltaTime) {
-        return movementDelta(upDown, deltaTime);
+    /** The cursor is captured, so the mouse can turn the camera indefinitely without hitting the screen edge. */
+    public void captureMouse() {
+        Gdx.input.setCursorCatched(true);
     }
 
     public float forwardMovementDelta(float deltaTime) {
-        return -movementDelta(forward, deltaTime);
+        return movementDelta(axis(Keys.W, Keys.S), deltaTime);
     }
 
     public float leftRightMovementDelta(float deltaTime) {
-        return movementDelta(leftRight, deltaTime);
+        return movementDelta(axis(Keys.D, Keys.A) + axis(Keys.RIGHT, Keys.LEFT), deltaTime);
     }
 
-    private float movementDelta(float directionMovement, float deltaTime) {
-        return directionMovement * (MOVEMENT_SPEED * deltaTime);
+    public float upDownMovementDelta(float deltaTime) {
+        return movementDelta(axis(Keys.UP, Keys.DOWN), deltaTime);
     }
 
-    /** Accumulates how far the mouse moved (in pixels) since the last call to {@link #resetRotations()}. */
-    public void mouseMoved(int screenX, int screenY) {
-        if (hasPreviousMousePosition) {
-            yawPixels += previousScreenX - screenX;
-            pitchPixels += previousScreenY - screenY;
+    /** Reads the mouse movement for this frame. Call once per frame, before reading the rotations. */
+    public void update() {
+        final int dx = Gdx.input.getDeltaX();
+        final int dy = Gdx.input.getDeltaY();
+        if (!seenFirstMouseMove && (dx != 0 || dy != 0)) {
+            // The very first mouse event is measured from an initial position of (0, 0), not from where the
+            // cursor actually was, so it's a huge bogus jump. Ignore it.
+            seenFirstMouseMove = true;
+            yawPixels = 0;
+            pitchPixels = 0;
+            return;
         }
-        previousScreenX = screenX;
-        previousScreenY = screenY;
-        hasPreviousMousePosition = true;
+        yawPixels = dx;
+        pitchPixels = dy;
     }
 
     /** Degrees to turn left/right. Mouse deltas are already per-frame distances, so no deltaTime scaling. */
     public float horizontalRotation() {
-        return yawPixels * DEGREES_PER_PIXEL;
+        return -yawPixels * DEGREES_PER_PIXEL;
     }
 
     /** Degrees to turn up/down. */
     public float verticalRotation() {
-        return pitchPixels * DEGREES_PER_PIXEL;
+        return -pitchPixels * DEGREES_PER_PIXEL;
     }
 
-    public void resetRotations() {
-        yawPixels = 0;
-        pitchPixels = 0;
+    /** 1 if only the positive key is held, -1 if only the negative key is held, otherwise 0. */
+    private static float axis(int positiveKey, int negativeKey) {
+        return (Gdx.input.isKeyPressed(positiveKey) ? 1 : 0) - (Gdx.input.isKeyPressed(negativeKey) ? 1 : 0);
+    }
+
+    private static float movementDelta(float direction, float deltaTime) {
+        return MathUtils.clamp(direction, -1f, 1f) * MOVEMENT_SPEED * deltaTime;
     }
 }

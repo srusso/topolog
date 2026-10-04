@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder.VertexInfo;
@@ -95,7 +96,7 @@ public class TorusWithFundamentalGroup implements World {
 
     @Override
     public void render(ModelBatch modelBatch, Environment environment) {
-        // Opaque things first, then the translucent torus so blending works against them.
+        // ModelBatch draws blended renderables (the torus) after opaque ones, back to front.
         generatorA.forEach(m -> modelBatch.render(m, environment));
         generatorB.forEach(m -> modelBatch.render(m, environment));
         path.forEach(m -> modelBatch.render(m, environment));
@@ -128,7 +129,10 @@ public class TorusWithFundamentalGroup implements World {
         Material material = new Material(
             ColorAttribute.createDiffuse(HexColors.GREEN_PASTEL),
             new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA, 0.35f),
-            IntAttribute.createCullFace(GL20.GL_NONE) // hollow: visible from inside too
+            IntAttribute.createCullFace(GL20.GL_NONE), // hollow: visible from inside too
+            // Test against the depth buffer but don't write to it, otherwise a near triangle of this
+            // translucent surface would hide the far ones that happen to be drawn after it.
+            new DepthTestAttribute(GL20.GL_LEQUAL, false)
         );
         MeshPartBuilder builder = modelBuilder.part("torus", GL20.GL_TRIANGLES,
             Usage.Position | Usage.Normal, material);
