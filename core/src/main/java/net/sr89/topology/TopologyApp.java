@@ -5,7 +5,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
@@ -17,6 +20,8 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -54,6 +59,14 @@ public class TopologyApp extends ApplicationAdapter {
     private Label titleLabel;
     private Table titleRoot;
     private Cell<Label> titleCell;
+    private ExplanationText explanationText;
+    private Label explanationLabel;
+    private Table explanationPanel;
+    private Cell<Table> explanationPanelCell;
+    private Cell<Label> explanationLabelCell;
+    private Texture panelTexture;
+    private Drawable panelBackground;
+    private boolean explanationShown = true;
     private WorldGallery gallery;
     private List<WorldGallery.Entry> galleryEntries;
     private Model axesModel;
@@ -62,6 +75,10 @@ public class TopologyApp extends ApplicationAdapter {
     private static final float MAX_PITCH = 89f;
 
     private static final float TITLE_PADDING = 24f;
+    private static final float EXPLANATION_SCALE = 0.7f;
+    private static final float EXPLANATION_PADDING = 12f;
+    private static final float MAX_EXPLANATION_WIDTH = 620f;
+    private static final String EXPLANATION_HINT = "[LIGHT_GRAY]Press [WHITE]E[LIGHT_GRAY] to explain this world[]";
 
     private final CameraMovementService cameraMovementService = new CameraMovementService();
     private final Vector3 scratch = new Vector3();
@@ -79,26 +96,43 @@ public class TopologyApp extends ApplicationAdapter {
         titleRoot.top().left().pad(TITLE_PADDING);
         titleLabel.setWrap(true); // a long title goes on a second line instead of being cut off
         titleCell = titleRoot.add(titleLabel).left();
+
+        // the explanation of the world goes under the title, on a dark panel to be easy to read
+        explanationText = new ExplanationText();
+        final Pixmap white = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        white.setColor(Color.WHITE);
+        white.fill();
+        panelTexture = new Texture(white);
+        white.dispose();
+        panelBackground = new TextureRegionDrawable(new TextureRegion(panelTexture)).tint(new Color(0f, 0f, 0f, 0.6f));
+        explanationLabel = new Label("", new LabelStyle(explanationText.getFont(), Color.WHITE));
+        explanationLabel.setWrap(true);
+        explanationLabel.setFontScale(EXPLANATION_SCALE);
+        explanationPanel = new Table();
+        explanationPanel.top().left().pad(EXPLANATION_PADDING);
+        explanationLabelCell = explanationPanel.add(explanationLabel).left().top();
+        titleRoot.row();
+        explanationPanelCell = titleRoot.add(explanationPanel).left().top().padTop(10f);
         stage.addActor(titleRoot);
 
         // each world, with where to point a thumbnail camera to see all of it
         galleryEntries = List.of(
-            new WorldGallery.Entry(new S1WithCoveringSpace(), new Framing(new Vector3(0f, 1.85f, 0f), 2.1f)),
-            new WorldGallery.Entry(new TorusWithFundamentalGroup(), new Framing(new Vector3(), 2.8f)),
-            new WorldGallery.Entry(new GenusTwoSurface(), new Framing(new Vector3(), 2.4f)),
-            new WorldGallery.Entry(new UniversalCoverOfTorus(), new Framing(new Vector3(0f, 1.5f, 0f), 3.2f)),
-            new WorldGallery.Entry(new PathLiftingOnCircle(), new Framing(new Vector3(0f, 1.85f, 0f), 2.1f)),
-            new WorldGallery.Entry(new KleinBottle(), new Framing(new Vector3(), 3.0f)),
-            new WorldGallery.Entry(new ProjectivePlane(), new Framing(new Vector3(), 2.75f)),
-            new WorldGallery.Entry(new MobiusBand(), new Framing(new Vector3(), 2.4f)),
-            new WorldGallery.Entry(new TorusPolygons(), new Framing(new Vector3(), 3.1f)),
-            new WorldGallery.Entry(new GenusTwoPolygon(), new Framing(new Vector3(), 3.0f)),
-            new WorldGallery.Entry(new WedgeOfCircles(), new Framing(new Vector3(0f, 1.3f, 0f), 3.3f)),
-            new WorldGallery.Entry(new VanKampenGenusTwo(), new Framing(new Vector3(), 4.2f)));
+            new WorldGallery.Entry(new S1WithCoveringSpace(), new Framing(new Vector3(0f, 1.85f, 0f), 2.1f), WorldExplanations.S1_WITH_COVERING_SPACE),
+            new WorldGallery.Entry(new TorusWithFundamentalGroup(), new Framing(new Vector3(), 2.8f), WorldExplanations.TORUS),
+            new WorldGallery.Entry(new GenusTwoSurface(), new Framing(new Vector3(), 2.4f), WorldExplanations.GENUS_TWO),
+            new WorldGallery.Entry(new UniversalCoverOfTorus(), new Framing(new Vector3(0f, 1.5f, 0f), 3.2f), WorldExplanations.UNIVERSAL_COVER_OF_TORUS),
+            new WorldGallery.Entry(new PathLiftingOnCircle(), new Framing(new Vector3(0f, 1.85f, 0f), 2.1f), WorldExplanations.PATH_LIFTING),
+            new WorldGallery.Entry(new KleinBottle(), new Framing(new Vector3(), 3.0f), WorldExplanations.KLEIN_BOTTLE),
+            new WorldGallery.Entry(new ProjectivePlane(), new Framing(new Vector3(), 2.75f), WorldExplanations.PROJECTIVE_PLANE),
+            new WorldGallery.Entry(new MobiusBand(), new Framing(new Vector3(), 2.4f), WorldExplanations.MOBIUS_BAND),
+            new WorldGallery.Entry(new TorusPolygons(), new Framing(new Vector3(), 3.1f), WorldExplanations.TORUS_POLYGONS),
+            new WorldGallery.Entry(new GenusTwoPolygon(), new Framing(new Vector3(), 3.0f), WorldExplanations.GENUS_TWO_POLYGON),
+            new WorldGallery.Entry(new WedgeOfCircles(), new Framing(new Vector3(0f, 1.3f, 0f), 3.3f), WorldExplanations.WEDGE_OF_CIRCLES),
+            new WorldGallery.Entry(new VanKampenGenusTwo(), new Framing(new Vector3(), 4.2f), WorldExplanations.VAN_KAMPEN));
         worlds = galleryEntries.stream().map(WorldGallery.Entry::world).toList();
         selectWorld(1);
 
-        Gdx.input.setInputProcessor(new ControlInputProcessor(this::selectWorld, this::stepWorld));
+        Gdx.input.setInputProcessor(new ControlInputProcessor(this::selectWorld, this::stepWorld, this::toggleExplanation));
 
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(0f, 7f, 7f);
@@ -170,7 +204,11 @@ public class TopologyApp extends ApplicationAdapter {
         gallery.layout(width, height);
         titleRoot.padLeft(gallery.getWidth() + TITLE_PADDING);
         // the title has the space that the gallery doesn't take
-        titleCell.width(Math.max(100f, width - gallery.getWidth() - 2 * TITLE_PADDING));
+        final float available = Math.max(100f, width - gallery.getWidth() - 2 * TITLE_PADDING);
+        titleCell.width(available);
+        final float panelWidth = Math.min(MAX_EXPLANATION_WIDTH, available);
+        explanationPanelCell.width(panelWidth);
+        explanationLabelCell.width(panelWidth - 2 * EXPLANATION_PADDING);
         camera.viewportWidth = width - gallery.getWidth();
         camera.viewportHeight = height;
         camera.update();
@@ -189,6 +227,23 @@ public class TopologyApp extends ApplicationAdapter {
         }
         currentWorld = worlds.get(selection - 1);
         titleLabel.setText(currentWorld.getWorldTitle());
+        updateExplanation();
+    }
+
+    /** Shows or hides the explanation of the world. */
+    public void toggleExplanation() {
+        explanationShown = !explanationShown;
+        updateExplanation();
+    }
+
+    private void updateExplanation() {
+        if (explanationShown) {
+            explanationLabel.setText(galleryEntries.get(worlds.indexOf(currentWorld)).explanation());
+            explanationPanel.setBackground(panelBackground);
+        } else {
+            explanationLabel.setText(EXPLANATION_HINT);
+            explanationPanel.setBackground((Drawable) null);
+        }
     }
 
     private void updateCameraRotation() {
@@ -220,6 +275,8 @@ public class TopologyApp extends ApplicationAdapter {
         axesModel.dispose();
         stage.dispose();
         titleFont.dispose();
+        explanationText.dispose();
+        panelTexture.dispose();
         worlds.forEach(World::dispose);
     }
 }

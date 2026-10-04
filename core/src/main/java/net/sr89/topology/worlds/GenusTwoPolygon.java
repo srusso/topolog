@@ -32,7 +32,7 @@ public class GenusTwoPolygon implements World {
 
     @Override
     public String getWorldTitle() {
-        return "Octagon, sides glued like a1 b1 a1^-1 b1^-1 a2 b2 a2^-1 b2^-1: the genus 2 surface";
+        return "Octagon -> genus 2 surface";
     }
 
     @Override

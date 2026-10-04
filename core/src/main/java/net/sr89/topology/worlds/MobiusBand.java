@@ -57,7 +57,7 @@ public class MobiusBand implements World {
 
     @Override
     public String getWorldTitle() {
-        return "Mobius band: pi1 = Z, the boundary is a^2";
+        return "Mobius band: pi1 = Z";
     }
 
     @Override

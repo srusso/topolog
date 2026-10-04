@@ -29,8 +29,11 @@ public class WorldGallery {
     /** A sphere containing the whole world, used to point a camera at it. */
     public record Framing(Vector3 center, float radius) {}
 
-    /** A world to show in the gallery, and where to point the thumbnail's camera to see all of it. */
-    public record Entry(World world, Framing framing) {}
+    /**
+     * A world to show in the gallery, where to point the thumbnail's camera to see all of it, and the text that explains it
+     * (see {@link ExplanationText} for what it can have).
+     */
+    public record Entry(World world, Framing framing, String explanation) {}
 
     private static final float PADDING = 16f;
     private static final float MAX_THUMBNAIL_SIZE = 240f;

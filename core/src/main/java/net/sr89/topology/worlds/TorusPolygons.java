@@ -60,10 +60,10 @@ public class TorusPolygons implements World {
 
         if (time < FoldTiming.CYCLE) {
             square.setFold(FoldTiming.amount(time));
-            title = "Square, opposite sides glued: a b a^-1 b^-1 -> the torus";
+            title = "Square -> torus";
         } else {
             hexagon.setFold(FoldTiming.amount(time - FoldTiming.CYCLE));
-            title = "Hexagon, opposite sides glued: also the torus";
+            title = "Hexagon -> torus";
         }
     }
 

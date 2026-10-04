@@ -102,7 +102,7 @@ public class WedgeOfCircles implements World {
 
     @Override
     public String getWorldTitle() {
-        return "Wedge of two circles: pi1 is the free group on a, b; its universal cover is a tree";
+        return "Wedge of two circles: free group on a, b";
     }
 
     @Override

@@ -91,7 +91,7 @@ public class ProjectivePlane implements World {
 
     @Override
     public String getWorldTitle() {
-        return "Projective plane (Boy's surface): <a | a^2>, a^2 shrinks to a point";
+        return "Projective plane (Boy's surface): <a | a^2>";
     }
 
     @Override

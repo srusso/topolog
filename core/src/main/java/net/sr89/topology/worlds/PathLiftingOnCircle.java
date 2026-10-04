@@ -80,7 +80,7 @@ public class PathLiftingOnCircle implements World {
 
     @Override
     public String getWorldTitle() {
-        return "Path lifting: a loop going twice around S1 lifts to a path 2 sheets up";
+        return "Path lifting on the circle";
     }
 
     @Override

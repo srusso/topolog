@@ -102,8 +102,8 @@ public class VanKampenGenusTwo implements World {
     @Override
     public String getWorldTitle() {
         return apart < 0.5f
-            ? "Van Kampen: A (blue) and B (orange) cover the surface, and overlap in the neck"
-            : "Van Kampen: the loop e is [a1,b1] in A and [a2,b2]^-1 in B";
+            ? "Van Kampen: A and B cover the surface"
+            : "Van Kampen: [a1,b1] = [a2,b2]^-1";
     }
 
     @Override
