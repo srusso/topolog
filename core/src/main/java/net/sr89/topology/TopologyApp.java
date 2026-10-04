@@ -26,6 +26,7 @@ import net.sr89.topology.WorldGallery.Framing;
 import net.sr89.topology.worlds.GenusTwoSurface;
 import net.sr89.topology.worlds.KleinBottle;
 import net.sr89.topology.worlds.PathLiftingOnCircle;
+import net.sr89.topology.worlds.ProjectivePlane;
 import net.sr89.topology.worlds.S1WithCoveringSpace;
 import net.sr89.topology.worlds.TorusWithFundamentalGroup;
 import net.sr89.topology.worlds.UniversalCoverOfTorus;
@@ -79,7 +80,8 @@ public class TopologyApp extends ApplicationAdapter {
             new WorldGallery.Entry(new GenusTwoSurface(), new Framing(new Vector3(), 2.4f)),
             new WorldGallery.Entry(new UniversalCoverOfTorus(), new Framing(new Vector3(0f, 1.5f, 0f), 3.2f)),
             new WorldGallery.Entry(new PathLiftingOnCircle(), new Framing(new Vector3(0f, 1.85f, 0f), 2.1f)),
-            new WorldGallery.Entry(new KleinBottle(), new Framing(new Vector3(), 3.0f)));
+            new WorldGallery.Entry(new KleinBottle(), new Framing(new Vector3(), 3.0f)),
+            new WorldGallery.Entry(new ProjectivePlane(), new Framing(new Vector3(), 3.0f)));
         worlds = galleryEntries.stream().map(WorldGallery.Entry::world).toList();
         selectWorld(1);
 
