@@ -25,6 +25,8 @@ import net.sr89.topology.math.Surface;
  */
 public final class ParametricSurface {
     private static final float DERIVATIVE_STEP = 1e-3f;
+    private static final float DEGENERATE_OFFSET = 1e-2f;
+    private static final Vector3 SCRATCH_A = new Vector3(), SCRATCH_B = new Vector3(), SCRATCH_C = new Vector3(), SCRATCH_D = new Vector3();
 
     private ParametricSurface() {}
 
@@ -80,21 +82,40 @@ public final class ParametricSurface {
         return new Material(ColorAttribute.createDiffuse(color), IntAttribute.createCullFace(GL20.GL_NONE));
     }
 
-    /** The unit normal of the surface at (u, v): the cross product of the u and v derivatives, normalized. */
+    /**
+     * The unit normal of the surface at (u, v): the cross product of the u and v derivatives, normalized.
+     * <p>
+     * Where the parametrization is degenerate (for instance at a pole, where a whole edge of the square is squeezed into
+     * a single point), the normal is taken a little way inside the square, which is its limit from there.
+     * Uses scratch vectors shared by all calls, so it must not be called from several threads.
+     */
     public static void normalAt(Surface surface, float u, float v, Vector3 out) {
+        if (tryNormalAt(surface, u, v, out)) {
+            return;
+        }
+        final float towardsMiddleU = u < 0.5f ? DEGENERATE_OFFSET : -DEGENERATE_OFFSET;
+        final float towardsMiddleV = v < 0.5f ? DEGENERATE_OFFSET : -DEGENERATE_OFFSET;
+        if (!tryNormalAt(surface, u, v + towardsMiddleV, out) && !tryNormalAt(surface, u + towardsMiddleU, v, out)) {
+            out.set(Vector3.Y);
+        }
+    }
+
+    private static boolean tryNormalAt(Surface surface, float u, float v, Vector3 out) {
         // Stay inside [0, 1] at the edges, by using a one-sided difference there
         final float u0 = Math.max(u - DERIVATIVE_STEP, 0f), u1 = Math.min(u + DERIVATIVE_STEP, 1f);
         final float v0 = Math.max(v - DERIVATIVE_STEP, 0f), v1 = Math.min(v + DERIVATIVE_STEP, 1f);
-        final Vector3 a = new Vector3(), b = new Vector3(), c = new Vector3(), d = new Vector3();
-        surface.pointAt(u0, v, a);
-        surface.pointAt(u1, v, b);
-        surface.pointAt(u, v0, c);
-        surface.pointAt(u, v1, d);
-        out.set(b).sub(a).crs(d.sub(c));
-        if (out.len2() < 1e-12f) {
-            out.set(Vector3.Y); // a degenerate point of the parametrization, e.g. a pole
-        } else {
-            out.nor();
+        surface.pointAt(u0, v, SCRATCH_A);
+        surface.pointAt(u1, v, SCRATCH_B);
+        surface.pointAt(u, v0, SCRATCH_C);
+        surface.pointAt(u, v1, SCRATCH_D);
+        final Vector3 alongU = SCRATCH_B.sub(SCRATCH_A), alongV = SCRATCH_D.sub(SCRATCH_C);
+        final float lengths = alongU.len() * alongV.len();
+        out.set(alongU).crs(alongV);
+        // the derivatives are (nearly) parallel, or one of them is (nearly) zero
+        if (lengths < 1e-12f || out.len() < 1e-4f * lengths) {
+            return false;
         }
+        out.nor();
+        return true;
     }
 }
