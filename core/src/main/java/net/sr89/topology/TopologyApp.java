@@ -87,7 +87,7 @@ public class TopologyApp extends ApplicationAdapter {
             new WorldGallery.Entry(new KleinBottle(), new Framing(new Vector3(), 3.0f)),
             new WorldGallery.Entry(new ProjectivePlane(), new Framing(new Vector3(), 3.0f)),
             new WorldGallery.Entry(new MobiusBand(), new Framing(new Vector3(), 2.4f)),
-            new WorldGallery.Entry(new FundamentalPolygons(), new Framing(new Vector3(0f, 1.2f, 0f), 3.6f)),
+            new WorldGallery.Entry(new FundamentalPolygons(), new Framing(new Vector3(), 3.1f)),
             new WorldGallery.Entry(new WedgeOfCircles(), new Framing(new Vector3(0f, 1.3f, 0f), 3.3f)),
             new WorldGallery.Entry(new VanKampenGenusTwo(), new Framing(new Vector3(), 4.2f)));
         worlds = galleryEntries.stream().map(WorldGallery.Entry::world).toList();

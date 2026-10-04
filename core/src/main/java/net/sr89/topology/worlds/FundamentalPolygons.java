@@ -17,15 +17,15 @@ import java.util.List;
  * <ol>
  *   <li>The square with opposite sides glued, a b a⁻¹ b⁻¹, which folds up into the torus.</li>
  *   <li>The hexagon with opposite sides glued, which is also a torus.</li>
- *   <li>The octagon a₁ b₁ a₁⁻¹ b₁⁻¹ a₂ b₂ a₂⁻¹ b₂⁻¹, which is the genus 2 surface.</li>
+ *   <li>The octagon a₁ b₁ a₁⁻¹ b₁⁻¹ a₂ b₂ a₂⁻¹ b₂⁻¹, which folds up into the genus 2 surface.</li>
  * </ol>
- * Edges of the polygon that are glued together have the same color. For the square and the hexagon the polygon folds up
- * into the surface (they are cut open along the colored edges until they are folded all the way, where the two edges
- * of each color come together). The fundamental group of all of them has one generator for each pair of glued edges
- * (up to the vertices, which are all identified to the same point), and one relation: going around the polygon.
+ * Edges of the polygon that are glued together have the same color. The polygon is cut open along the colored edges until
+ * it is folded all the way, where the two edges of each color come together. The fundamental group of all of them has one
+ * generator for each pair of glued edges (all the vertices are identified to the same point), and one relation: going
+ * around the polygon.
  * <p>
- * The octagon is not folded: that map from the octagon to the genus 2 surface has no simple formula. It is shown above
- * the genus 2 surface of {@link GenusTwoSurface}, whose four generator loops have the colors of the four pairs of edges.
+ * The square and the hexagon fold with a formula. For the octagon there is none that is simple, so the genus 2
+ * surface is cut open along four loops and flattened by computer, see {@link GenusTwoOctagon}.
  */
 public class FundamentalPolygons implements World {
     private static final float TORUS_MAJOR_RADIUS = 1.5f;
@@ -34,27 +34,20 @@ public class FundamentalPolygons implements World {
     private static final int SQUARE_CELLS = 40;
     private static final int HEXAGON_CELLS = 20; // lattice steps from the center to a corner
     private static final float HEXAGON_STEP = 0.14f;
-    private static final float OCTAGON_RADIUS = 1.9f;
-    private static final float OCTAGON_HEIGHT = 3.2f;
-    private static final int OCTAGON_RINGS = 12;
-    private static final int OCTAGON_STEPS_PER_EDGE = 6;
+    private static final float OCTAGON_RADIUS = 2.4f;
     /** How wide the colored band along the glued edges is. */
     private static final float EDGE_BAND = 0.09f;
 
     // seconds
     private static final float HOLD_FLAT = 3f, FOLDING = 4f, HOLD_FOLDED = 3f;
     private static final float FOLDING_CYCLE = HOLD_FLAT + FOLDING + HOLD_FOLDED + FOLDING;
-    private static final float OCTAGON_SECONDS = 9f;
-    private static final float CYCLE = 2 * FOLDING_CYCLE + OCTAGON_SECONDS;
+    private static final float CYCLE = 3 * FOLDING_CYCLE;
 
     private static final Color PLAIN = HexColors.greenPastel();
-    private static final Color[] OCTAGON_COLORS = {
-        Color.RED, Color.CYAN, Color.RED, Color.CYAN, Color.ORANGE, Color.MAGENTA, Color.ORANGE, Color.MAGENTA};
 
     private final FoldingMesh square;
     private final FoldingMesh hexagon;
     private final FoldingMesh octagon;
-    private final World genusTwo = new GenusTwoSurface();
 
     private float time = 0f;
     private String title = "";
@@ -62,7 +55,7 @@ public class FundamentalPolygons implements World {
     public FundamentalPolygons() {
         square = createSquare();
         hexagon = createHexagon();
-        octagon = createOctagon();
+        octagon = GenusTwoOctagon.create(OCTAGON_RADIUS, EDGE_BAND, PLAIN);
         reposition(0f);
     }
 
@@ -74,7 +67,6 @@ public class FundamentalPolygons implements World {
     @Override
     public void reposition(float deltaTime) {
         time = (time + deltaTime) % CYCLE;
-        genusTwo.reposition(deltaTime);
 
         if (time < FOLDING_CYCLE) {
             square.setFold(foldAmount(time));
@@ -83,7 +75,8 @@ public class FundamentalPolygons implements World {
             hexagon.setFold(foldAmount(time - FOLDING_CYCLE));
             title = "Hexagon, opposite sides glued: also the torus";
         } else {
-            title = "Octagon: a1 b1 a1^-1 b1^-1 a2 b2 a2^-1 b2^-1 -> the genus 2 surface";
+            octagon.setFold(foldAmount(time - 2 * FOLDING_CYCLE));
+            title = "Octagon, sides glued like a1 b1 a1^-1 b1^-1 a2 b2 a2^-1 b2^-1: the genus 2 surface";
         }
     }
 
@@ -95,7 +88,6 @@ public class FundamentalPolygons implements World {
             hexagon.render(modelBatch, environment);
         } else {
             octagon.render(modelBatch, environment);
-            genusTwo.render(modelBatch, environment);
         }
     }
 
@@ -104,7 +96,6 @@ public class FundamentalPolygons implements World {
         square.dispose();
         hexagon.dispose();
         octagon.dispose();
-        genusTwo.dispose();
     }
 
     /** From 0 (flat) to 1 (folded) over one cycle of: stay flat, fold, stay folded, unfold. */
@@ -223,46 +214,5 @@ public class FundamentalPolygons implements World {
             }
         }
         return nearest > EDGE_BAND ? PLAIN : pairColors[nearestEdge % 3];
-    }
-
-    private static FoldingMesh createOctagon() {
-        final Vector3[] corners = new Vector3[8];
-        for (int k = 0; k < 8; k++) {
-            final double angle = Math.toRadians(22.5 + 45 * k);
-            corners[k] = new Vector3((float) (OCTAGON_RADIUS * Math.cos(angle)), OCTAGON_HEIGHT, (float) (OCTAGON_RADIUS * Math.sin(angle)));
-        }
-        final int steps = 8 * OCTAGON_STEPS_PER_EDGE;
-        final List<Vector3> positions = new ArrayList<>();
-        final List<Color> colors = new ArrayList<>();
-        final Vector3 onBoundary = new Vector3();
-        final float apothem = OCTAGON_RADIUS * (float) Math.cos(Math.PI / 8);
-        // rings of vertices, scaled copies of the boundary, from the center out
-        for (int ring = 0; ring <= OCTAGON_RINGS; ring++) {
-            final float scale = (float) ring / OCTAGON_RINGS;
-            for (int i = 0; i < steps; i++) {
-                final int edge = i / OCTAGON_STEPS_PER_EDGE;
-                final float along = (float) (i % OCTAGON_STEPS_PER_EDGE) / OCTAGON_STEPS_PER_EDGE;
-                onBoundary.set(corners[edge]).lerp(corners[(edge + 1) % 8], along);
-                final Vector3 p = new Vector3(onBoundary.x * scale, OCTAGON_HEIGHT, onBoundary.z * scale);
-                positions.add(p);
-                // the closest edge, and how far from it
-                final double middleAngle = Math.toRadians(45 + 45 * edge);
-                final double distance = apothem - (p.x * Math.cos(middleAngle) + p.z * Math.sin(middleAngle));
-                colors.add(distance > EDGE_BAND ? PLAIN : OCTAGON_COLORS[edge]);
-            }
-        }
-        final List<int[]> triangles = new ArrayList<>();
-        for (int ring = 0; ring < OCTAGON_RINGS; ring++) {
-            for (int i = 0; i < steps; i++) {
-                final int next = (i + 1) % steps;
-                final int a = ring * steps + i, b = ring * steps + next;
-                final int c = (ring + 1) * steps + next, d = (ring + 1) * steps + i;
-                triangles.add(new int[] {a, c, b});
-                triangles.add(new int[] {a, d, c});
-            }
-        }
-        final FoldingMesh mesh = new FoldingMesh(positions, triangles, colors, (flat, out) -> out.set(flat),
-            ParametricSurface.opaqueMaterial(Color.WHITE));
-        return mesh;
     }
 }

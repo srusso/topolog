@@ -136,7 +136,7 @@ public class GenusTwoSurface implements World {
     }
 
     /** The x²(1 − x²) − y² part of the equation: positive inside the two lobes, negative outside the figure-eight. */
-    private static float g(float x, float y) {
+    static float g(float x, float y) {
         return x * x * (1 - x * x) - y * y;
     }
 
@@ -158,18 +158,37 @@ public class GenusTwoSurface implements World {
      *             a part of the surface; null keeps the whole surface
      */
     static Model createSurfaceModel(Material material, Predicate<Vector3> keep) {
-        // The surface reaches x = ±(1 + r/2) and y = ±√(1/4 + r), and z = ±r. Leave a bit of room.
-        final float margin = 0.04f;
-        final float halfWidth = 1f + TUBE_RADIUS / 2 + margin;
-        final float halfHeight = (float) Math.sqrt(0.25 + TUBE_RADIUS) + margin;
-        final float halfDepth = TUBE_RADIUS + margin;
         return MarchingTetrahedra.build(
-            (x, y, z) -> {
-                final float g = g(x, y);
-                return g * g + z * z - TUBE_RADIUS * TUBE_RADIUS;
-            },
-            new Vector3(-halfWidth, -halfHeight, -halfDepth), new Vector3(halfWidth, halfHeight, halfDepth),
-            GRID_CELL, material, keep);
+            GenusTwoSurface::field, new Vector3(-halfWidth(), -halfHeight(), -halfDepth()),
+            new Vector3(halfWidth(), halfHeight(), halfDepth()), GRID_CELL, material, keep);
+    }
+
+    /** The raw mesh of the surface, in the unit coordinates of its equation, with cells of the given size. */
+    static MarchingTetrahedra.Triangulation createTriangulation(float cell) {
+        return MarchingTetrahedra.triangulate(
+            GenusTwoSurface::field, new Vector3(-halfWidth(), -halfHeight(), -halfDepth()),
+            new Vector3(halfWidth(), halfHeight(), halfDepth()), cell);
+    }
+
+    /** The function that is zero on the surface, negative inside it and positive outside. */
+    static float field(float x, float y, float z) {
+        final float g = g(x, y);
+        return g * g + z * z - TUBE_RADIUS * TUBE_RADIUS;
+    }
+
+    // The surface reaches x = ±(1 + r/2) and y = ±√(1/4 + r), and z = ±r. Leave a bit of room.
+    private static final float BOUNDS_MARGIN = 0.04f;
+
+    private static float halfWidth() {
+        return 1f + TUBE_RADIUS / 2 + BOUNDS_MARGIN;
+    }
+
+    private static float halfHeight() {
+        return (float) Math.sqrt(0.25 + TUBE_RADIUS) + BOUNDS_MARGIN;
+    }
+
+    private static float halfDepth() {
+        return TUBE_RADIUS + BOUNDS_MARGIN;
     }
 
     /**
