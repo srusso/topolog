@@ -34,6 +34,8 @@ public class LineModelLauncher extends ApplicationAdapter {
     private World s2FundamentalGroup;
     private World currentWorld;
     private Environment environment;
+    private BitmapFont titleFont;
+    private LabelStyle titleStyle;
     private Model axesModel;
     private ModelInstance axes;
 
@@ -48,6 +50,11 @@ public class LineModelLauncher extends ApplicationAdapter {
     @Override
     public void create() {
         stage = new Stage(new ScreenViewport());
+
+        titleFont = new BitmapFont(Gdx.files.internal("bitmapfont/Amble-Regular-26.fnt"));
+        titleStyle = new LabelStyle();
+        titleStyle.font = titleFont;
+        titleStyle.fontColor = Color.RED;
 
         s1WithCoveringSpace = new S1WithCoveringSpace();
         s2FundamentalGroup = new TorusWithFundamentalGroup();
@@ -73,8 +80,8 @@ public class LineModelLauncher extends ApplicationAdapter {
 
     @Override
     public void render() {
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         Gdx.gl.glClearColor(BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, 1f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
         final float deltaTime = Gdx.graphics.getDeltaTime();
         updateCameraPosition(deltaTime);
@@ -92,6 +99,19 @@ public class LineModelLauncher extends ApplicationAdapter {
 
         stage.act();
         stage.draw();
+    }
+
+    public void resize(int width, int height) {
+        if (width <= 0 || height <= 0 || stage == null) {
+            return;
+        }
+        stage.getViewport().update(width, height, true);
+        camera.viewportWidth = width;
+        camera.viewportHeight = height;
+        camera.update();
+        // the title position depends on the window size
+        stage.clear();
+        stage.addActor(getTitleLabel());
     }
 
     public void selectWorld(int selection) {
@@ -131,14 +151,16 @@ public class LineModelLauncher extends ApplicationAdapter {
         modelBatch.dispose();
         axesModel.dispose();
         stage.dispose();
+        titleFont.dispose();
         s1WithCoveringSpace.dispose();
+        s2FundamentalGroup.dispose();
     }
 
     private Label getTitleLabel() {
         final int row_height = Gdx.graphics.getWidth() / 12;
         final int col_width = Gdx.graphics.getWidth() / 12;
 
-        Label title = new Label(currentWorld.getWorldTitle(), getTitleStyle());
+        Label title = new Label(currentWorld.getWorldTitle(), titleStyle);
         title.setSize(col_width, row_height);
         title.setPosition(
             col_width / 2F,
@@ -146,12 +168,5 @@ public class LineModelLauncher extends ApplicationAdapter {
         );
         title.setAlignment(Align.left);
         return title;
-    }
-
-    private LabelStyle getTitleStyle() {
-        LabelStyle labelStyle = new LabelStyle();
-        labelStyle.font = new BitmapFont(Gdx.files.internal("bitmapfont/Amble-Regular-26.fnt"));
-        labelStyle.fontColor = Color.RED;
-        return labelStyle;
     }
 }

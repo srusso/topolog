@@ -20,6 +20,11 @@ public class Launcher extends ApplicationAdapter {
     }
 
     @Override
+    public void resize(int width, int height) {
+        adapter.resize(width, height);
+    }
+
+    @Override
     public void render() {
         adapter.render();
     }

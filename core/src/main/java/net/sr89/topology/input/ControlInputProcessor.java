@@ -62,7 +62,7 @@ public class ControlInputProcessor implements InputProcessor {
             return true;
         }
 
-        if (i >= Input.Keys.NUM_1 || i <= Input.Keys.NUM_9) {
+        if (i >= Input.Keys.NUM_1 && i <= Input.Keys.NUM_9) {
             launcher.selectWorld(i - Input.Keys.NUM_0);
         }
 
