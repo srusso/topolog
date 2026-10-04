@@ -21,6 +21,7 @@ import net.sr89.topology.shapes.TubeMesh;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * The (hollow) surface of a double torus, a.k.a. the genus 2 surface.
@@ -43,11 +44,11 @@ import java.util.List;
  */
 public class GenusTwoSurface implements World {
     /** Radius of the surface's "tube", in the unit coordinates the equation is written in. */
-    private static final float TUBE_RADIUS = 0.14f;
+    static final float TUBE_RADIUS = 0.14f;
     /** The equation is written for a figure-eight about 2 units wide; this scales it to fit with the other worlds. */
-    private static final float SCALE = 2f;
+    static final float SCALE = 2f;
     /** The loops are drawn slightly outside the surface so they aren't hidden inside it. */
-    private static final float LOOP_TUBE_RADIUS = TUBE_RADIUS * 1.04f;
+    static final float LOOP_TUBE_RADIUS = TUBE_RADIUS * 1.04f;
     /** The center of each lobe, i.e. where each hole is. */
     private static final float LOBE_X = (float) Math.sqrt(0.5);
     /** Which level of g(x, y) = x²(1 − x²) − y² the "around the hole" loops follow: just inside the rim of the hole. */
@@ -147,6 +148,16 @@ public class GenusTwoSurface implements World {
             // Test against the depth buffer but don't write to it, so we can see through to the far side.
             new DepthTestAttribute(GL20.GL_LEQUAL, false)
         );
+        return createSurfaceModel(material, null);
+    }
+
+    /**
+     * The surface, in the unit coordinates of its equation.
+     *
+     * @param keep only keeps the triangles with their center accepted by this filter (in those coordinates), to get
+     *             a part of the surface; null keeps the whole surface
+     */
+    static Model createSurfaceModel(Material material, Predicate<Vector3> keep) {
         // The surface reaches x = ±(1 + r/2) and y = ±√(1/4 + r), and z = ±r. Leave a bit of room.
         final float margin = 0.04f;
         final float halfWidth = 1f + TUBE_RADIUS / 2 + margin;
@@ -158,7 +169,7 @@ public class GenusTwoSurface implements World {
                 return g * g + z * z - TUBE_RADIUS * TUBE_RADIUS;
             },
             new Vector3(-halfWidth, -halfHeight, -halfDepth), new Vector3(halfWidth, halfHeight, halfDepth),
-            GRID_CELL, material);
+            GRID_CELL, material, keep);
     }
 
     /**
@@ -167,7 +178,7 @@ public class GenusTwoSurface implements World {
      *
      * @param side -1 for the left lobe, +1 for the right lobe
      */
-    private static Curve aroundHole(int side) {
+    static Curve aroundHole(int side) {
         // g(x, 0) = level has two positive solutions for x² (the oval's left and right ends)
         final double root = Math.sqrt(1 - 4 * HOLE_LOOP_LEVEL);
         final double left = Math.sqrt((1 - root) / 2), right = Math.sqrt((1 + root) / 2);
@@ -188,7 +199,7 @@ public class GenusTwoSurface implements World {
      *
      * @param side -1 for the left lobe, +1 for the right lobe
      */
-    private static Curve throughHole(int side) {
+    static Curve throughHole(int side) {
         final double centerG = g(LOBE_X, 0f);
         return (t, out) -> {
             final double angle = 2 * Math.PI * t;
@@ -244,7 +255,7 @@ public class GenusTwoSurface implements World {
     }
 
     /** Where a point of the surface (in the unit coordinates of its equation) ends up in the world. */
-    private static void toWorld(float x, float y, float z, Vector3 out) {
+    static void toWorld(float x, float y, float z, Vector3 out) {
         out.set(SCALE * x, SCALE * z, -SCALE * y);
     }
 }

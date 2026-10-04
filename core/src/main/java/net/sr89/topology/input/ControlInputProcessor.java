@@ -6,13 +6,24 @@ import com.badlogic.gdx.InputAdapter;
 
 import java.util.function.IntConsumer;
 
-/** Handles discrete key presses (quit, select world). Continuous camera movement is polled by {@link CameraMovementService}. */
+/**
+ * Handles discrete key presses: quit, and choosing the world.
+ * <p>
+ * The number keys 1 to 9 choose the first nine worlds, and 0 the tenth. Tab, or Page Down, goes to the next world, and
+ * Shift+Tab, or Page Up, to the previous one, so there is no limit to how many worlds there can be.
+ * Continuous camera movement is polled by {@link CameraMovementService}.
+ */
 public class ControlInputProcessor extends InputAdapter {
     private final IntConsumer worldSelector;
+    private final IntConsumer worldStepper;
 
-    /** @param worldSelector called with 1-9 when the matching number key is released */
-    public ControlInputProcessor(IntConsumer worldSelector) {
+    /**
+     * @param worldSelector called with the number of a world (starting from 1) when the key for it is released
+     * @param worldStepper  called with 1 to go to the next world, and with -1 to go to the previous one
+     */
+    public ControlInputProcessor(IntConsumer worldSelector, IntConsumer worldStepper) {
         this.worldSelector = worldSelector;
+        this.worldStepper = worldStepper;
     }
 
     @Override
@@ -24,6 +35,24 @@ public class ControlInputProcessor extends InputAdapter {
 
         if (keycode >= Input.Keys.NUM_1 && keycode <= Input.Keys.NUM_9) {
             worldSelector.accept(keycode - Input.Keys.NUM_0);
+            return true;
+        }
+        if (keycode == Input.Keys.NUM_0) {
+            worldSelector.accept(10);
+            return true;
+        }
+
+        if (keycode == Input.Keys.PAGE_DOWN) {
+            worldStepper.accept(1);
+            return true;
+        }
+        if (keycode == Input.Keys.PAGE_UP) {
+            worldStepper.accept(-1);
+            return true;
+        }
+        if (keycode == Input.Keys.TAB) {
+            final boolean backwards = Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT);
+            worldStepper.accept(backwards ? -1 : 1);
             return true;
         }
 

@@ -23,9 +23,17 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import net.sr89.topology.input.CameraMovementService;
 import net.sr89.topology.input.ControlInputProcessor;
 import net.sr89.topology.WorldGallery.Framing;
+import net.sr89.topology.worlds.FundamentalPolygons;
 import net.sr89.topology.worlds.GenusTwoSurface;
+import net.sr89.topology.worlds.KleinBottle;
+import net.sr89.topology.worlds.MobiusBand;
+import net.sr89.topology.worlds.PathLiftingOnCircle;
+import net.sr89.topology.worlds.ProjectivePlane;
 import net.sr89.topology.worlds.S1WithCoveringSpace;
 import net.sr89.topology.worlds.TorusWithFundamentalGroup;
+import net.sr89.topology.worlds.UniversalCoverOfTorus;
+import net.sr89.topology.worlds.VanKampenGenusTwo;
+import net.sr89.topology.worlds.WedgeOfCircles;
 import net.sr89.topology.worlds.World;
 
 import java.util.List;
@@ -73,11 +81,19 @@ public class TopologyApp extends ApplicationAdapter {
         galleryEntries = List.of(
             new WorldGallery.Entry(new S1WithCoveringSpace(), new Framing(new Vector3(0f, 1.85f, 0f), 2.1f)),
             new WorldGallery.Entry(new TorusWithFundamentalGroup(), new Framing(new Vector3(), 2.8f)),
-            new WorldGallery.Entry(new GenusTwoSurface(), new Framing(new Vector3(), 2.4f)));
+            new WorldGallery.Entry(new GenusTwoSurface(), new Framing(new Vector3(), 2.4f)),
+            new WorldGallery.Entry(new UniversalCoverOfTorus(), new Framing(new Vector3(0f, 1.5f, 0f), 3.2f)),
+            new WorldGallery.Entry(new PathLiftingOnCircle(), new Framing(new Vector3(0f, 1.85f, 0f), 2.1f)),
+            new WorldGallery.Entry(new KleinBottle(), new Framing(new Vector3(), 3.0f)),
+            new WorldGallery.Entry(new ProjectivePlane(), new Framing(new Vector3(), 3.0f)),
+            new WorldGallery.Entry(new MobiusBand(), new Framing(new Vector3(), 2.4f)),
+            new WorldGallery.Entry(new FundamentalPolygons(), new Framing(new Vector3(0f, 1.2f, 0f), 3.6f)),
+            new WorldGallery.Entry(new WedgeOfCircles(), new Framing(new Vector3(0f, 1.3f, 0f), 3.3f)),
+            new WorldGallery.Entry(new VanKampenGenusTwo(), new Framing(new Vector3(), 4.2f)));
         worlds = galleryEntries.stream().map(WorldGallery.Entry::world).toList();
         selectWorld(1);
 
-        Gdx.input.setInputProcessor(new ControlInputProcessor(this::selectWorld));
+        Gdx.input.setInputProcessor(new ControlInputProcessor(this::selectWorld, this::stepWorld));
 
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(0f, 7f, 7f);
@@ -124,6 +140,7 @@ public class TopologyApp extends ApplicationAdapter {
 
         modelBatch.end();
 
+        titleLabel.setText(currentWorld.getWorldTitle()); // some worlds change their title as they go
         stage.getViewport().apply();
         stage.act();
         stage.draw();
@@ -150,6 +167,12 @@ public class TopologyApp extends ApplicationAdapter {
         camera.viewportWidth = width - gallery.getWidth();
         camera.viewportHeight = height;
         camera.update();
+    }
+
+    /** @param delta 1 to show the next world, -1 to show the previous one; going past the end wraps around */
+    public void stepWorld(int delta) {
+        final int index = Math.floorMod(worlds.indexOf(currentWorld) + delta, worlds.size());
+        selectWorld(index + 1);
     }
 
     /** @param selection The 1-based number of the world to show. Numbers without a world are ignored. */
