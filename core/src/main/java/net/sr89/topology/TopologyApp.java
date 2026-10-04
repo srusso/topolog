@@ -21,6 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import net.sr89.topology.input.CameraMovementService;
 import net.sr89.topology.input.ControlInputProcessor;
+import net.sr89.topology.worlds.GenusTwoSurface;
 import net.sr89.topology.worlds.S1WithCoveringSpace;
 import net.sr89.topology.worlds.TorusWithFundamentalGroup;
 import net.sr89.topology.worlds.World;
@@ -63,7 +64,7 @@ public class TopologyApp extends ApplicationAdapter {
         root.add(titleLabel);
         stage.addActor(root);
 
-        worlds = List.of(new S1WithCoveringSpace(), new TorusWithFundamentalGroup());
+        worlds = List.of(new S1WithCoveringSpace(), new TorusWithFundamentalGroup(), new GenusTwoSurface());
         selectWorld(1);
 
         Gdx.input.setInputProcessor(new ControlInputProcessor(this::selectWorld));
