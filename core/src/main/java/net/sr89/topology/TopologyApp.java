@@ -32,6 +32,7 @@ import net.sr89.topology.worlds.ProjectivePlane;
 import net.sr89.topology.worlds.S1WithCoveringSpace;
 import net.sr89.topology.worlds.TorusWithFundamentalGroup;
 import net.sr89.topology.worlds.UniversalCoverOfTorus;
+import net.sr89.topology.worlds.WedgeOfCircles;
 import net.sr89.topology.worlds.World;
 
 import java.util.List;
@@ -85,7 +86,8 @@ public class TopologyApp extends ApplicationAdapter {
             new WorldGallery.Entry(new KleinBottle(), new Framing(new Vector3(), 3.0f)),
             new WorldGallery.Entry(new ProjectivePlane(), new Framing(new Vector3(), 3.0f)),
             new WorldGallery.Entry(new MobiusBand(), new Framing(new Vector3(), 2.4f)),
-            new WorldGallery.Entry(new FundamentalPolygons(), new Framing(new Vector3(0f, 1.2f, 0f), 3.6f)));
+            new WorldGallery.Entry(new FundamentalPolygons(), new Framing(new Vector3(0f, 1.2f, 0f), 3.6f)),
+            new WorldGallery.Entry(new WedgeOfCircles(), new Framing(new Vector3(0f, 1.3f, 0f), 3.3f)));
         worlds = galleryEntries.stream().map(WorldGallery.Entry::world).toList();
         selectWorld(1);
 
