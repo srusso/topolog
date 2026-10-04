@@ -75,7 +75,6 @@ public class TopologyApp extends ApplicationAdapter {
     private static final float MAX_PITCH = 89f;
 
     private static final float TITLE_PADDING = 24f;
-    private static final float EXPLANATION_SCALE = 0.7f;
     private static final float EXPLANATION_PADDING = 12f;
     private static final float MAX_EXPLANATION_WIDTH = 620f;
     private static final String EXPLANATION_HINT = "[LIGHT_GRAY]Press [WHITE]E[LIGHT_GRAY] to explain this world[]";
@@ -107,7 +106,7 @@ public class TopologyApp extends ApplicationAdapter {
         panelBackground = new TextureRegionDrawable(new TextureRegion(panelTexture)).tint(new Color(0f, 0f, 0f, 0.6f));
         explanationLabel = new Label("", new LabelStyle(explanationText.getFont(), Color.WHITE));
         explanationLabel.setWrap(true);
-        explanationLabel.setFontScale(EXPLANATION_SCALE);
+        explanationLabel.setFontScale(explanationText.getScale());
         explanationPanel = new Table();
         explanationPanel.top().left().pad(EXPLANATION_PADDING);
         explanationLabelCell = explanationPanel.add(explanationLabel).left().top();
