@@ -30,13 +30,14 @@ import net.sr89.topology.input.CameraMovementService;
 import net.sr89.topology.input.ControlInputProcessor;
 import net.sr89.topology.WorldGallery.Framing;
 import net.sr89.topology.worlds.GenusTwoPolygon;
+import net.sr89.topology.worlds.HexagonTorus;
 import net.sr89.topology.worlds.GenusTwoSurface;
 import net.sr89.topology.worlds.KleinBottle;
 import net.sr89.topology.worlds.MobiusBand;
 import net.sr89.topology.worlds.PathLiftingOnCircle;
 import net.sr89.topology.worlds.ProjectivePlane;
 import net.sr89.topology.worlds.S1WithCoveringSpace;
-import net.sr89.topology.worlds.TorusPolygons;
+import net.sr89.topology.worlds.SquareTorus;
 import net.sr89.topology.worlds.TorusWithFundamentalGroup;
 import net.sr89.topology.worlds.UniversalCoverOfTorus;
 import net.sr89.topology.worlds.VanKampenGenusTwo;
@@ -127,7 +128,8 @@ public class TopologyApp extends ApplicationAdapter {
             new WorldGallery.Entry(new KleinBottle(), new Framing(new Vector3(), 3.0f), WorldExplanations.KLEIN_BOTTLE),
             new WorldGallery.Entry(new ProjectivePlane(), new Framing(new Vector3(), 2.75f), WorldExplanations.PROJECTIVE_PLANE),
             new WorldGallery.Entry(new MobiusBand(), new Framing(new Vector3(), 2.4f), WorldExplanations.MOBIUS_BAND),
-            new WorldGallery.Entry(new TorusPolygons(), new Framing(new Vector3(), 3.1f), WorldExplanations.TORUS_POLYGONS),
+            new WorldGallery.Entry(new SquareTorus(), new Framing(new Vector3(), 2.4f), WorldExplanations.SQUARE_TORUS),
+            new WorldGallery.Entry(new HexagonTorus(), new Framing(new Vector3(), 3.0f), WorldExplanations.HEXAGON_TORUS),
             new WorldGallery.Entry(new GenusTwoPolygon(), new Framing(new Vector3(), 3.0f), WorldExplanations.GENUS_TWO_POLYGON),
             new WorldGallery.Entry(new WedgeOfCircles(), new Framing(new Vector3(0f, 1.3f, 0f), 3.3f), WorldExplanations.WEDGE_OF_CIRCLES),
             new WorldGallery.Entry(new VanKampenGenusTwo(), new Framing(new Vector3(), 4.2f), WorldExplanations.VAN_KAMPEN));

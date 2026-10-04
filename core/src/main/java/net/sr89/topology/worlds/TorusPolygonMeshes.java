@@ -1,8 +1,6 @@
 package net.sr89.topology.worlds;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g3d.Environment;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.math.Vector3;
 import net.sr89.topology.HexColors;
 import net.sr89.topology.shapes.FoldingMesh;
@@ -12,18 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The torus as a polygon with its edges glued, shown for two polygons in turn:
- * <ol>
- *   <li>The square with opposite sides glued, a b a⁻¹ b⁻¹.</li>
- *   <li>The hexagon with opposite sides glued, which gives the same surface from a different polygon.</li>
- * </ol>
- * Edges of the polygon that are glued together have the same color. The polygon is cut open along the colored edges until
- * it is folded all the way, where the two edges of each color come together. The fundamental group has one generator for each
- * pair of glued edges (all the vertices are identified to the same point), and one relation: going around the polygon.
+ * The polygons that fold up into the torus, as meshes: the square and the hexagon, each with opposite sides glued.
  * <p>
- * The octagon that gives the genus 2 surface is in {@link GenusTwoPolygon}.
+ * Edges of the polygon that are glued together have the same color. The polygon is cut open along the colored edges until
+ * it is folded all the way, where the two edges of each color come together.
  */
-public class TorusPolygons implements World {
+final class TorusPolygonMeshes {
     private static final float TORUS_MAJOR_RADIUS = 1.5f;
     private static final float TORUS_MINOR_RADIUS = 0.55f;
     private static final float SQUARE_SIDE = 3f;
@@ -33,54 +25,9 @@ public class TorusPolygons implements World {
     /** How wide the colored band along the glued edges is. */
     private static final float EDGE_BAND = 0.09f;
 
-    private static final float CYCLE = 2 * FoldTiming.CYCLE;
-
     private static final Color PLAIN = HexColors.greenPastel();
 
-    private final FoldingMesh square;
-    private final FoldingMesh hexagon;
-
-    private float time = 0f;
-    private String title = "";
-
-    public TorusPolygons() {
-        square = createSquare();
-        hexagon = createHexagon();
-        reposition(0f);
-    }
-
-    @Override
-    public String getWorldTitle() {
-        return title;
-    }
-
-    @Override
-    public void reposition(float deltaTime) {
-        time = (time + deltaTime) % CYCLE;
-
-        if (time < FoldTiming.CYCLE) {
-            square.setFold(FoldTiming.amount(time));
-            title = "Square -> torus";
-        } else {
-            hexagon.setFold(FoldTiming.amount(time - FoldTiming.CYCLE));
-            title = "Hexagon -> torus";
-        }
-    }
-
-    @Override
-    public void render(ModelBatch modelBatch, Environment environment) {
-        if (time < FoldTiming.CYCLE) {
-            square.render(modelBatch, environment);
-        } else {
-            hexagon.render(modelBatch, environment);
-        }
-    }
-
-    @Override
-    public void dispose() {
-        square.dispose();
-        hexagon.dispose();
-    }
+    private TorusPolygonMeshes() {}
 
     /**
      * The torus: u goes the long way around (about the Y axis), v goes the short way, both in turns.
@@ -91,7 +38,8 @@ public class TorusPolygons implements World {
         out.set((float) (ring * Math.cos(alpha)), (float) (TORUS_MINOR_RADIUS * Math.sin(beta)), (float) (ring * Math.sin(alpha)));
     }
 
-    private static FoldingMesh createSquare() {
+    /** The square a b a⁻¹ b⁻¹, which folds up into the torus. */
+    static FoldingMesh createSquare() {
         final List<Vector3> positions = new ArrayList<>();
         final List<Color> colors = new ArrayList<>();
         final int points = SQUARE_CELLS + 1;
@@ -123,7 +71,8 @@ public class TorusPolygons implements World {
             ParametricSurface.opaqueMaterial(Color.WHITE));
     }
 
-    private static FoldingMesh createHexagon() {
+    /** The hexagon with opposite sides glued, which folds up into the same torus. */
+    static FoldingMesh createHexagon() {
         // The points of a hexagon-shaped patch of the triangular lattice: i * (1, 0) + j * (1/2, √3/2), scaled
         final int k = HEXAGON_CELLS;
         final int[][] indexOf = new int[2 * k + 1][2 * k + 1];

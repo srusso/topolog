@@ -88,13 +88,19 @@ final class WorldExplanations {
             + " floats over one side of it. After one lap around the core, the flag is on the other side. After two "
             + "laps, it is back.");
 
-    static final String TORUS_POLYGONS = paragraphs(
-        "The torus as a polygon with its sides glued, first a square, then a hexagon, both with opposite sides glued: "
-            + "different polygons, same surface.",
-        "Sides that are glued together have the same color: [RED]a[] and [CYAN]b[] for the square, and a third pair, "
-            + "[ORANGE]orange[], for the hexagon. The polygon folds up until the two sides of each color meet.",
-        "All the corners end up as the same point, so each pair of sides is a loop through it. For the square the "
-            + "fundamental group is <a, b | a b a^-1 b^-1>: the relation is going around the polygon.");
+    static final String SQUARE_TORUS = paragraphs(
+        "The torus as a square with its opposite sides glued: a b a^-1 b^-1. The square folds up until the two sides of "
+            + "each color meet: the [RED]red[] sides (a) become a circle, and so do the [CYAN]cyan[] sides (b).",
+        "All four corners end up as the same point, so a and b are loops through it. They are the generators of the "
+            + "fundamental group, and the relation is going around the square: a b a^-1 b^-1 = 1, that is, a b = b a. "
+            + "So the group is Z x Z.");
+
+    static final String HEXAGON_TORUS = paragraphs(
+        "The torus as a hexagon with its opposite sides glued: a different polygon, but the same surface. The sides that "
+            + "are glued together have the same color: [RED]red[], [CYAN]cyan[] and [ORANGE]orange[]. The hexagon folds up "
+            + "until the two sides of each color meet.",
+        "The six corners end up as just two points of the torus, and the three pairs of sides are three paths between "
+            + "them. The fundamental group is still Z x Z, as it is for the square: it only depends on the surface.");
 
     static final String GENUS_TWO_POLYGON = paragraphs(
         "The octagon with its sides glued like a1 b1 a1^-1 b1^-1 a2 b2 a2^-1 b2^-1 is the genus 2 surface. Sides that are "
