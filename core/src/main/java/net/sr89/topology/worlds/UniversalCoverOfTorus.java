@@ -69,7 +69,7 @@ public class UniversalCoverOfTorus implements World {
 
         grid = instance(createGrid());
         fundamentalSquare = instance(ParametricSurface.build(
-            (a, b, out) -> planePoint(a, b, out), 1, 1, false,
+            (a, b, out) -> planePoint(a, b, out), 1, 1, true,
             ParametricSurface.translucentMaterial(Color.ORANGE, 0.35f)));
 
         final Model preimage = model(sphere(0.12f, Color.ORANGE));

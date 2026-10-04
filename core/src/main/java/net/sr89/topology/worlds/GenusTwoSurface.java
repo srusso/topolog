@@ -222,8 +222,9 @@ public class GenusTwoSurface implements World {
         final double centerG = g(LOBE_X, 0f);
         return (t, out) -> {
             final double angle = 2 * Math.PI * t;
-            // a circle of radius r in the (g, z) plane: g = r cos(angle), z = r sin(angle), with y > 0
-            final double y = Math.sqrt(centerG - LOOP_TUBE_RADIUS * Math.cos(angle));
+            // a circle of radius r in the (g, z) plane: g = r cos(angle), z = r sin(angle), with y < 0, which is the
+            // front of the surface when it is seen from where the camera starts (see toWorld)
+            final double y = -Math.sqrt(centerG - LOOP_TUBE_RADIUS * Math.cos(angle));
             final double z = LOOP_TUBE_RADIUS * Math.sin(angle);
             toWorld(side * LOBE_X, (float) y, (float) z, out);
         };

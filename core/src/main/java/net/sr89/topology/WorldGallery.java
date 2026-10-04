@@ -74,8 +74,9 @@ public class WorldGallery {
         camera.near = 0.1f;
         camera.far = 100f;
         for (int i = 0; i < entries.size(); i++) {
-            // The keys 1 to 9 select the first nine worlds, 0 the tenth. The others can only be reached by stepping.
-            final Label number = new Label(i == 9 ? "0" : String.valueOf(i + 1), labelStyle);
+            // The keys 1 to 9 select the first nine worlds, 0 the tenth. The others can only be reached by stepping,
+            // so they have no number to show.
+            final Label number = new Label(i < 9 ? String.valueOf(i + 1) : i == 9 ? "0" : "", labelStyle);
             numberLabels.add(number);
             numbers.addActor(number);
         }

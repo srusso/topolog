@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.glutils.HdpiUtils;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -51,6 +52,7 @@ public class TopologyApp extends ApplicationAdapter {
     private BitmapFont titleFont;
     private Label titleLabel;
     private Table titleRoot;
+    private Cell<Label> titleCell;
     private WorldGallery gallery;
     private List<WorldGallery.Entry> galleryEntries;
     private Model axesModel;
@@ -74,7 +76,8 @@ public class TopologyApp extends ApplicationAdapter {
         titleRoot = new Table();
         titleRoot.setFillParent(true);
         titleRoot.top().left().pad(TITLE_PADDING);
-        titleRoot.add(titleLabel);
+        titleLabel.setWrap(true); // a long title goes on a second line instead of being cut off
+        titleCell = titleRoot.add(titleLabel).left();
         stage.addActor(titleRoot);
 
         // each world, with where to point a thumbnail camera to see all of it
@@ -164,6 +167,8 @@ public class TopologyApp extends ApplicationAdapter {
         stage.getViewport().update(width, height, true);
         gallery.layout(width, height);
         titleRoot.padLeft(gallery.getWidth() + TITLE_PADDING);
+        // the title has the space that the gallery doesn't take
+        titleCell.width(Math.max(100f, width - gallery.getWidth() - 2 * TITLE_PADDING));
         camera.viewportWidth = width - gallery.getWidth();
         camera.viewportHeight = height;
         camera.update();
