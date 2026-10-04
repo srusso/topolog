@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder.VertexInfo;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -49,18 +50,28 @@ public class FoldingMesh {
      */
     public FoldingMesh(List<Vector3> flatPositions, List<int[]> triangles, List<Color> colors,
                        BiConsumer<Vector3, Vector3> fold, Material material) {
+        this(flatPositions, triangles, colors, foldedPositions(flatPositions, fold), null, material);
+    }
+
+    /**
+     * @param foldedPositions where each vertex is in the folded surface
+     * @param foldedNormals   the normal vector of the surface at each of those places; if null, they are computed from
+     *                        the triangles, and the side that is away from the origin is taken to be the outside
+     */
+    public FoldingMesh(List<Vector3> flatPositions, List<int[]> triangles, List<Color> colors,
+                       List<Vector3> foldedPositions, List<Vector3> foldedNormals, Material material) {
         final int count = flatPositions.size();
         this.triangles = triangles.toArray(new int[0][]);
         flat = flatPositions.stream().map(Vector3::new).toArray(Vector3[]::new);
-        folded = new Vector3[count];
-        for (int i = 0; i < count; i++) {
-            folded[i] = new Vector3();
-            fold.accept(flat[i], folded[i]);
-        }
+        folded = foldedPositions.stream().map(Vector3::new).toArray(Vector3[]::new);
         flatNormals = vertexNormals(flat);
-        foldedNormals = vertexNormals(folded);
         orientFlatNormalsUp();
-        orientFoldedNormalsOutward();
+        if (foldedNormals == null) {
+            this.foldedNormals = vertexNormals(folded);
+            orientFoldedNormalsOutward();
+        } else {
+            this.foldedNormals = foldedNormals.stream().map(Vector3::new).toArray(Vector3[]::new);
+        }
 
         final ModelBuilder modelBuilder = new ModelBuilder();
         modelBuilder.begin();
@@ -83,6 +94,16 @@ public class FoldingMesh {
         positionOffset = mesh.getVertexAttribute(Usage.Position).offset / 4;
         normalOffset = mesh.getVertexAttribute(Usage.Normal).offset / 4;
         mesh.getVertices(vertices);
+    }
+
+    private static List<Vector3> foldedPositions(List<Vector3> flatPositions, BiConsumer<Vector3, Vector3> fold) {
+        final List<Vector3> result = new ArrayList<>();
+        for (Vector3 position : flatPositions) {
+            final Vector3 folded = new Vector3();
+            fold.accept(position, folded);
+            result.add(folded);
+        }
+        return result;
     }
 
     /** @param amount 0 for the flat shape, 1 for the surface */

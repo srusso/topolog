@@ -29,8 +29,11 @@ public class WorldGallery {
     /** A sphere containing the whole world, used to point a camera at it. */
     public record Framing(Vector3 center, float radius) {}
 
-    /** A world to show in the gallery, and where to point the thumbnail's camera to see all of it. */
-    public record Entry(World world, Framing framing) {}
+    /**
+     * A world to show in the gallery, where to point the thumbnail's camera to see all of it, and the text that explains it
+     * (see {@link ExplanationText} for what it can have).
+     */
+    public record Entry(World world, Framing framing, String explanation) {}
 
     private static final float PADDING = 16f;
     private static final float MAX_THUMBNAIL_SIZE = 240f;
@@ -74,8 +77,9 @@ public class WorldGallery {
         camera.near = 0.1f;
         camera.far = 100f;
         for (int i = 0; i < entries.size(); i++) {
-            // The keys 1 to 9 select the first nine worlds, 0 the tenth. The others can only be reached by stepping.
-            final Label number = new Label(i == 9 ? "0" : String.valueOf(i + 1), labelStyle);
+            // The keys 1 to 9 select the first nine worlds, 0 the tenth. The others can only be reached by stepping,
+            // so they have no number to show.
+            final Label number = new Label(i < 9 ? String.valueOf(i + 1) : i == 9 ? "0" : "", labelStyle);
             numberLabels.add(number);
             numbers.addActor(number);
         }

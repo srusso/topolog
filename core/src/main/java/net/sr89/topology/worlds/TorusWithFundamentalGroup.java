@@ -65,7 +65,7 @@ public class TorusWithFundamentalGroup implements World {
 
     @Override
     public String getWorldTitle() {
-        return "Torus with fundamental group";
+        return "Torus: pi1 = Z x Z";
     }
 
     @Override
