@@ -1,7 +1,6 @@
 package net.sr89.topology.worlds;
 
 import com.badlogic.gdx.graphics.g3d.Environment;
-import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import net.sr89.topology.shapes.CylinderHelix;
 import net.sr89.topology.shapes.UnitSphere;
@@ -9,14 +8,12 @@ import net.sr89.topology.shapes.UnitSphere;
 import static net.sr89.topology.shapes.BasicShapes.*;
 
 public class S1WithCoveringSpace implements World {
-    private final Model cylinderModel;
     private final CylinderHelix cylinderHelix;
     private final UnitSphere unitSphere;
 
     public S1WithCoveringSpace() {
-        cylinderModel = cylinderModel();
-        cylinderHelix = createCylinderHelix(cylinderModel);
-        unitSphere = createUnitSphere(cylinderModel);
+        cylinderHelix = createCylinderHelix();
+        unitSphere = createUnitSphere();
     }
 
     @Override
@@ -38,6 +35,7 @@ public class S1WithCoveringSpace implements World {
 
     @Override
     public void dispose() {
-        cylinderModel.dispose();
+        cylinderHelix.dispose();
+        unitSphere.dispose();
     }
 }
