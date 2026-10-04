@@ -11,15 +11,12 @@ import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder.VertexInfo;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
+import net.sr89.topology.math.Curve;
 
 /**
  * Builds a single mesh (one vertex buffer, one draw call) shaped like a tube following a curve.
  */
 public final class TubeMesh {
-    /** A parametric curve. {@code t} is in [0, 1] along the curve; for closed curves t=1 is the same point as t=0. */
-    public interface Curve {
-        void pointAt(float t, Vector3 out);
-    }
 
     private static final float TANGENT_EPSILON = 1e-3f;
 

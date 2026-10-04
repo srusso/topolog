@@ -31,7 +31,7 @@ public class LineModelLauncher extends ApplicationAdapter {
     private PerspectiveCamera camera;
     private ModelBatch modelBatch;
     private World s1WithCoveringSpace;
-    private World s2FundamentalGroup;
+    private World torusWithFundamentalGroup;
     private World currentWorld;
     private Environment environment;
     private BitmapFont titleFont;
@@ -57,7 +57,7 @@ public class LineModelLauncher extends ApplicationAdapter {
         titleStyle.fontColor = Color.RED;
 
         s1WithCoveringSpace = new S1WithCoveringSpace();
-        s2FundamentalGroup = new TorusWithFundamentalGroup();
+        torusWithFundamentalGroup = new TorusWithFundamentalGroup();
 
         selectWorld(1);
 
@@ -121,7 +121,7 @@ public class LineModelLauncher extends ApplicationAdapter {
                 currentWorld = s1WithCoveringSpace;
                 break;
             case 2:
-                currentWorld = s2FundamentalGroup;
+                currentWorld = torusWithFundamentalGroup;
                 break;
         }
         stage.addActor(getTitleLabel());
@@ -153,7 +153,7 @@ public class LineModelLauncher extends ApplicationAdapter {
         stage.dispose();
         titleFont.dispose();
         s1WithCoveringSpace.dispose();
-        s2FundamentalGroup.dispose();
+        torusWithFundamentalGroup.dispose();
     }
 
     private Label getTitleLabel() {
