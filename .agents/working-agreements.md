@@ -11,6 +11,9 @@
 - Commit messages end with the co-author line the harness asks for (see its system reminder).
 - Scratch files, experiments and test harnesses do not belong in the repo: use the scratchpad directory you are
   given. Don't commit them.
+- **Don't run `rm` (or other deleting commands) to clean up.** We don't care about cleaning up `/tmp` or the scratchpad:
+  leave scratch files where they are. Overwrite or ignore them instead of deleting them. (To remove a tracked file from
+  the repo, use `git rm`, as part of a change.)
 
 ## Scope
 - Keep changes additive when you can: new files and new worlds, rather than rewriting existing ones.
