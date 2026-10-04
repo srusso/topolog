@@ -2,25 +2,18 @@ package net.sr89.topology;
 
 import com.badlogic.gdx.graphics.Color;
 
-import java.util.HexFormat;
+/** The colors used by the application. Each call returns a new {@link Color}, so callers are free to mutate it. */
+public final class HexColors {
+    private static final String VERY_DARK_BLUE = "213339";
+    private static final String GREEN_PASTEL = "A5B68D";
 
-public class HexColors {
-    public static final Color VERY_DARK_BLUE = fromHexCode("#213339");
-    public static final Color GREEN_PASTEL = fromHexCode("#A5B68D");
+    private HexColors() {}
 
-    private static Color fromHexCode(String hexCode) {
-        final int red = HexFormat.fromHexDigits(hexCode, 1, 3);
-        final int green = HexFormat.fromHexDigits(hexCode, 3, 5);
-        final int blue = HexFormat.fromHexDigits(hexCode, 5, 7);
-
-        return new Color(
-            normalize(red),
-            normalize(green),
-            normalize(blue),
-            1F);
+    public static Color veryDarkBlue() {
+        return Color.valueOf(VERY_DARK_BLUE);
     }
 
-    private static float normalize(int intCode) {
-        return ((float) intCode) / 255.0F;
+    public static Color greenPastel() {
+        return Color.valueOf(GREEN_PASTEL);
     }
 }

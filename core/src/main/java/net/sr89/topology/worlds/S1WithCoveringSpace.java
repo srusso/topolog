@@ -1,22 +1,17 @@
 package net.sr89.topology.worlds;
 
 import com.badlogic.gdx.graphics.g3d.Environment;
-import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import net.sr89.topology.shapes.CylinderHelix;
-import net.sr89.topology.shapes.UnitSphere;
-
-import static net.sr89.topology.shapes.BasicShapes.*;
+import net.sr89.topology.shapes.Tube;
+import net.sr89.topology.shapes.Tubes;
 
 public class S1WithCoveringSpace implements World {
-    private final Model cylinderModel;
-    private final CylinderHelix cylinderHelix;
-    private final UnitSphere unitSphere;
+    private final Tube helix;
+    private final Tube unitCircle;
 
     public S1WithCoveringSpace() {
-        cylinderModel = cylinderModel();
-        cylinderHelix = createCylinderHelix(cylinderModel);
-        unitSphere = createUnitSphere(cylinderModel);
+        helix = Tubes.helix();
+        unitCircle = Tubes.unitCircle();
     }
 
     @Override
@@ -26,18 +21,19 @@ public class S1WithCoveringSpace implements World {
 
     @Override
     public void reposition(float deltaTime) {
-        cylinderHelix.reposition(deltaTime);
-        unitSphere.reposition(deltaTime);
+        helix.reposition(deltaTime);
+        unitCircle.reposition(deltaTime);
     }
 
     @Override
     public void render(ModelBatch modelBatch, Environment environment) {
-        unitSphere.render(modelBatch, environment);
-        cylinderHelix.render(modelBatch, environment);
+        unitCircle.render(modelBatch, environment);
+        helix.render(modelBatch, environment);
     }
 
     @Override
     public void dispose() {
-        cylinderModel.dispose();
+        helix.dispose();
+        unitCircle.dispose();
     }
 }
