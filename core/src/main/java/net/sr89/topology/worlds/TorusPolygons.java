@@ -3,7 +3,6 @@ package net.sr89.topology.worlds;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector3;
 import net.sr89.topology.HexColors;
 import net.sr89.topology.shapes.FoldingMesh;
@@ -13,49 +12,40 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Surfaces as polygons with their edges glued, in a loop of three polygons:
+ * The torus as a polygon with its edges glued, shown for two polygons in turn:
  * <ol>
- *   <li>The square with opposite sides glued, a b a⁻¹ b⁻¹, which folds up into the torus.</li>
- *   <li>The hexagon with opposite sides glued, which is also a torus.</li>
- *   <li>The octagon a₁ b₁ a₁⁻¹ b₁⁻¹ a₂ b₂ a₂⁻¹ b₂⁻¹, which folds up into the genus 2 surface.</li>
+ *   <li>The square with opposite sides glued, a b a⁻¹ b⁻¹.</li>
+ *   <li>The hexagon with opposite sides glued, which gives the same surface from a different polygon.</li>
  * </ol>
  * Edges of the polygon that are glued together have the same color. The polygon is cut open along the colored edges until
- * it is folded all the way, where the two edges of each color come together. The fundamental group of all of them has one
- * generator for each pair of glued edges (all the vertices are identified to the same point), and one relation: going
- * around the polygon.
+ * it is folded all the way, where the two edges of each color come together. The fundamental group has one generator for each
+ * pair of glued edges (all the vertices are identified to the same point), and one relation: going around the polygon.
  * <p>
- * The square and the hexagon fold with a formula. For the octagon there is none that is simple, so the genus 2
- * surface is cut open along four loops and flattened by computer, see {@link GenusTwoOctagon}.
+ * The octagon that gives the genus 2 surface is in {@link GenusTwoPolygon}.
  */
-public class FundamentalPolygons implements World {
+public class TorusPolygons implements World {
     private static final float TORUS_MAJOR_RADIUS = 1.5f;
     private static final float TORUS_MINOR_RADIUS = 0.55f;
     private static final float SQUARE_SIDE = 3f;
     private static final int SQUARE_CELLS = 40;
     private static final int HEXAGON_CELLS = 20; // lattice steps from the center to a corner
     private static final float HEXAGON_STEP = 0.14f;
-    private static final float OCTAGON_RADIUS = 2.4f;
     /** How wide the colored band along the glued edges is. */
     private static final float EDGE_BAND = 0.09f;
 
-    // seconds
-    private static final float HOLD_FLAT = 3f, FOLDING = 4f, HOLD_FOLDED = 3f;
-    private static final float FOLDING_CYCLE = HOLD_FLAT + FOLDING + HOLD_FOLDED + FOLDING;
-    private static final float CYCLE = 3 * FOLDING_CYCLE;
+    private static final float CYCLE = 2 * FoldTiming.CYCLE;
 
     private static final Color PLAIN = HexColors.greenPastel();
 
     private final FoldingMesh square;
     private final FoldingMesh hexagon;
-    private final FoldingMesh octagon;
 
     private float time = 0f;
     private String title = "";
 
-    public FundamentalPolygons() {
+    public TorusPolygons() {
         square = createSquare();
         hexagon = createHexagon();
-        octagon = GenusTwoOctagon.create(OCTAGON_RADIUS, EDGE_BAND, PLAIN);
         reposition(0f);
     }
 
@@ -68,26 +58,21 @@ public class FundamentalPolygons implements World {
     public void reposition(float deltaTime) {
         time = (time + deltaTime) % CYCLE;
 
-        if (time < FOLDING_CYCLE) {
-            square.setFold(foldAmount(time));
+        if (time < FoldTiming.CYCLE) {
+            square.setFold(FoldTiming.amount(time));
             title = "Square, opposite sides glued: a b a^-1 b^-1 -> the torus";
-        } else if (time < 2 * FOLDING_CYCLE) {
-            hexagon.setFold(foldAmount(time - FOLDING_CYCLE));
-            title = "Hexagon, opposite sides glued: also the torus";
         } else {
-            octagon.setFold(foldAmount(time - 2 * FOLDING_CYCLE));
-            title = "Octagon, sides glued like a1 b1 a1^-1 b1^-1 a2 b2 a2^-1 b2^-1: the genus 2 surface";
+            hexagon.setFold(FoldTiming.amount(time - FoldTiming.CYCLE));
+            title = "Hexagon, opposite sides glued: also the torus";
         }
     }
 
     @Override
     public void render(ModelBatch modelBatch, Environment environment) {
-        if (time < FOLDING_CYCLE) {
+        if (time < FoldTiming.CYCLE) {
             square.render(modelBatch, environment);
-        } else if (time < 2 * FOLDING_CYCLE) {
-            hexagon.render(modelBatch, environment);
         } else {
-            octagon.render(modelBatch, environment);
+            hexagon.render(modelBatch, environment);
         }
     }
 
@@ -95,22 +80,6 @@ public class FundamentalPolygons implements World {
     public void dispose() {
         square.dispose();
         hexagon.dispose();
-        octagon.dispose();
-    }
-
-    /** From 0 (flat) to 1 (folded) over one cycle of: stay flat, fold, stay folded, unfold. */
-    private static float foldAmount(float cycleTime) {
-        final float amount;
-        if (cycleTime < HOLD_FLAT) {
-            amount = 0f;
-        } else if (cycleTime < HOLD_FLAT + FOLDING) {
-            amount = (cycleTime - HOLD_FLAT) / FOLDING;
-        } else if (cycleTime < HOLD_FLAT + FOLDING + HOLD_FOLDED) {
-            amount = 1f;
-        } else {
-            amount = 1f - (cycleTime - HOLD_FLAT - FOLDING - HOLD_FOLDED) / FOLDING;
-        }
-        return Interpolation.smooth.apply(amount);
     }
 
     /**
