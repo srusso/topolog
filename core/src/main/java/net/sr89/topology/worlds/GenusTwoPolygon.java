@@ -14,7 +14,7 @@ import net.sr89.topology.shapes.FoldingMesh;
  * for each pair of glued sides (all the corners are identified to the same point), and one relation: going around
  * the octagon, [a₁, b₁][a₂, b₂] = 1.
  * <p>
- * Unlike the square of {@link TorusPolygons}, there is no simple formula for how the octagon folds up: the genus 2
+ * Unlike the square of {@link SquareTorus}, there is no simple formula for how the octagon folds up: the genus 2
  * surface is cut open along four loops and flattened by computer, see {@link GenusTwoOctagon}.
  */
 public class GenusTwoPolygon implements World {
