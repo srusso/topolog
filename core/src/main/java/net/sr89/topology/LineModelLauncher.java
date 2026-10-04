@@ -20,6 +20,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import net.sr89.topology.input.CameraMovementService;
 import net.sr89.topology.worlds.S1WithCoveringSpace;
+import net.sr89.topology.worlds.TorusWithFundamentalGroup;
 import net.sr89.topology.worlds.World;
 
 import static net.sr89.topology.shapes.GridShape.createAxes;
@@ -30,6 +31,8 @@ public class LineModelLauncher extends ApplicationAdapter {
     private PerspectiveCamera camera;
     private ModelBatch modelBatch;
     private World s1WithCoveringSpace;
+    private World s2FundamentalGroup;
+    private World currentWorld;
     private Environment environment;
     private Model axesModel;
     private ModelInstance axes;
@@ -46,9 +49,10 @@ public class LineModelLauncher extends ApplicationAdapter {
     public void create() {
         stage = new Stage(new ScreenViewport());
 
-        int row_height = Gdx.graphics.getWidth() / 12;
-        int col_width = Gdx.graphics.getWidth() / 12;
-        stage.addActor(getTitleLabel(row_height, col_width));
+        s1WithCoveringSpace = new S1WithCoveringSpace();
+        s2FundamentalGroup = new TorusWithFundamentalGroup();
+
+        selectWorld(1);
 
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(0f, 7f, 7f);
@@ -62,29 +66,9 @@ public class LineModelLauncher extends ApplicationAdapter {
 
         modelBatch = new ModelBatch();
 
-        s1WithCoveringSpace = new S1WithCoveringSpace();
-
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
         environment.add(new DirectionalLight().set(1f, 1f, 1f, -1f, -0.8f, -0.2f));
-    }
-
-    private static Label getTitleLabel(int row_height, int col_width) {
-        Label title = new Label("S1 with covering space", getTitleStyle());
-        title.setSize(col_width, row_height);
-        title.setPosition(
-            col_width / 2F,
-            Gdx.graphics.getHeight() - (row_height)
-        );
-        title.setAlignment(Align.left);
-        return title;
-    }
-
-    private static LabelStyle getTitleStyle() {
-        LabelStyle labelStyle = new LabelStyle();
-        labelStyle.font = new BitmapFont(Gdx.files.internal("bitmapfont/Amble-Regular-26.fnt"));
-        labelStyle.fontColor = Color.RED;
-        return labelStyle;
     }
 
     @Override
@@ -98,16 +82,29 @@ public class LineModelLauncher extends ApplicationAdapter {
         cameraMovementService.resetRotations();
         camera.update();
 
-        s1WithCoveringSpace.reposition(deltaTime);
+        currentWorld.reposition(deltaTime);
 
         modelBatch.begin(camera);
         modelBatch.render(axes, environment);
-        s1WithCoveringSpace.render(modelBatch, environment);
+        currentWorld.render(modelBatch, environment);
 
         modelBatch.end();
 
         stage.act();
         stage.draw();
+    }
+
+    public void selectWorld(int selection) {
+        stage.clear();
+        switch (selection) {
+            case 1:
+                currentWorld = s1WithCoveringSpace;
+                break;
+            case 2:
+                currentWorld = s2FundamentalGroup;
+                break;
+        }
+        stage.addActor(getTitleLabel());
     }
 
     private void updateCameraRotation(float deltaTime) {
@@ -135,5 +132,26 @@ public class LineModelLauncher extends ApplicationAdapter {
         axesModel.dispose();
         stage.dispose();
         s1WithCoveringSpace.dispose();
+    }
+
+    private Label getTitleLabel() {
+        final int row_height = Gdx.graphics.getWidth() / 12;
+        final int col_width = Gdx.graphics.getWidth() / 12;
+
+        Label title = new Label(currentWorld.getWorldTitle(), getTitleStyle());
+        title.setSize(col_width, row_height);
+        title.setPosition(
+            col_width / 2F,
+            Gdx.graphics.getHeight() - (row_height)
+        );
+        title.setAlignment(Align.left);
+        return title;
+    }
+
+    private LabelStyle getTitleStyle() {
+        LabelStyle labelStyle = new LabelStyle();
+        labelStyle.font = new BitmapFont(Gdx.files.internal("bitmapfont/Amble-Regular-26.fnt"));
+        labelStyle.fontColor = Color.RED;
+        return labelStyle;
     }
 }
