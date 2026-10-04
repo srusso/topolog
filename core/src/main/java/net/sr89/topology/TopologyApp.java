@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -25,7 +26,7 @@ import net.sr89.topology.worlds.World;
 
 import static net.sr89.topology.shapes.GridShape.createAxes;
 
-public class LineModelLauncher extends ApplicationAdapter {
+public class TopologyApp extends ApplicationAdapter {
 
     private Stage stage;
     private PerspectiveCamera camera;
@@ -39,11 +40,14 @@ public class LineModelLauncher extends ApplicationAdapter {
     private Model axesModel;
     private ModelInstance axes;
 
+    private static final float MAX_PITCH = 89f;
+
     private final CameraMovementService cameraMovementService;
+    private final Vector3 scratch = new Vector3();
 
     private final Color BACKGROUND_COLOR = HexColors.VERY_DARK_BLUE;
 
-    public LineModelLauncher(CameraMovementService cameraMovementService) {
+    public TopologyApp(CameraMovementService cameraMovementService) {
         this.cameraMovementService = cameraMovementService;
     }
 
@@ -64,7 +68,7 @@ public class LineModelLauncher extends ApplicationAdapter {
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(0f, 7f, 7f);
         camera.lookAt(0, 0, 0);
-        camera.near = 1f;
+        camera.near = 0.1f;
         camera.far = 300f;
         camera.update();
 
@@ -85,7 +89,7 @@ public class LineModelLauncher extends ApplicationAdapter {
 
         final float deltaTime = Gdx.graphics.getDeltaTime();
         updateCameraPosition(deltaTime);
-        updateCameraRotation(deltaTime);
+        updateCameraRotation();
         cameraMovementService.resetRotations();
         camera.update();
 
@@ -127,23 +131,27 @@ public class LineModelLauncher extends ApplicationAdapter {
         stage.addActor(getTitleLabel());
     }
 
-    private void updateCameraRotation(float deltaTime) {
-        Vector3 cameraHorizontalAxis = getCameraHorizontalAxis().rotate(camera.direction, 180);
-        Vector3 up = new Vector3(Vector3.Y);
-        camera.rotate(cameraHorizontalAxis, cameraMovementService.verticalRotation(deltaTime));
-        camera.rotate(up, cameraMovementService.horizontalRotation(deltaTime));
+    private void updateCameraRotation() {
+        final float yaw = cameraMovementService.horizontalRotation();
+        float pitch = cameraMovementService.verticalRotation();
+
+        // don't let the camera flip over the poles
+        final float currentPitch = MathUtils.asin(camera.direction.y) * MathUtils.radiansToDegrees;
+        pitch = MathUtils.clamp(currentPitch + pitch, -MAX_PITCH, MAX_PITCH) - currentPitch;
+
+        camera.rotate(cameraRight(), pitch);
+        camera.rotate(Vector3.Y, yaw);
     }
 
     private void updateCameraPosition(float deltaTime) {
-        Vector3 cameraHorizontalAxis = getCameraHorizontalAxis().rotate(camera.direction, 180);
-        Vector3 cameraDirection = new Vector3(camera.direction);
-        camera.position.add(cameraDirection.scl(cameraMovementService.forwardMovementDelta(deltaTime)));
-        camera.position.add(cameraHorizontalAxis.scl(cameraMovementService.leftRightMovementDelta(deltaTime)));
-        camera.position.add(new Vector3(Vector3.Y).scl(cameraMovementService.upDownMovementDelta(deltaTime)));
+        camera.position.mulAdd(camera.direction, cameraMovementService.forwardMovementDelta(deltaTime));
+        camera.position.mulAdd(cameraRight(), cameraMovementService.leftRightMovementDelta(deltaTime));
+        camera.position.mulAdd(Vector3.Y, cameraMovementService.upDownMovementDelta(deltaTime));
     }
 
-    private Vector3 getCameraHorizontalAxis() {
-        return new Vector3(camera.up).crs(camera.direction);
+    /** Unit vector pointing to the camera's right. Reuses a scratch vector, so don't hold on to it. */
+    private Vector3 cameraRight() {
+        return scratch.set(camera.direction).crs(camera.up).nor();
     }
 
     @Override

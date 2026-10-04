@@ -4,10 +4,14 @@ public class CameraMovementService {
     private float forward = 0; // forward == 1, backward == -1
     private float leftRight = 0; // left == -1, right == 1
     private float upDown = 0; // up == 1, down == -1
-    private float previousScreenX;
-    private float currentScreenX;
-    private float previousScreenY;
-    private float currentScreenY;
+    private static final float DEGREES_PER_PIXEL = 0.2f;
+    private static final float MOVEMENT_SPEED = 20f;
+
+    private boolean hasPreviousMousePosition = false;
+    private int previousScreenX;
+    private int previousScreenY;
+    private float yawPixels = 0;
+    private float pitchPixels = 0;
 
     public void beginMovementForward() {
         forward = -1;
@@ -58,28 +62,32 @@ public class CameraMovementService {
     }
 
     private float movementDelta(float directionMovement, float deltaTime) {
-        return directionMovement * (20f * deltaTime);
+        return directionMovement * (MOVEMENT_SPEED * deltaTime);
     }
 
+    /** Accumulates how far the mouse moved (in pixels) since the last call to {@link #resetRotations()}. */
     public void mouseMoved(int screenX, int screenY) {
-        if (previousScreenY == 0) {
-            this.previousScreenX = screenX;
-            this.previousScreenY = screenY;
+        if (hasPreviousMousePosition) {
+            yawPixels += previousScreenX - screenX;
+            pitchPixels += previousScreenY - screenY;
         }
-        this.currentScreenX = screenX;
-        this.currentScreenY = screenY;
+        previousScreenX = screenX;
+        previousScreenY = screenY;
+        hasPreviousMousePosition = true;
     }
 
-    public float horizontalRotation(float deltaTime) {
-        return (previousScreenX - currentScreenX) * 0.2f;
+    /** Degrees to turn left/right. Mouse deltas are already per-frame distances, so no deltaTime scaling. */
+    public float horizontalRotation() {
+        return yawPixels * DEGREES_PER_PIXEL;
     }
 
-    public float verticalRotation(float deltaTime) {
-        return (previousScreenY - currentScreenY) * 0.2f;
+    /** Degrees to turn up/down. */
+    public float verticalRotation() {
+        return pitchPixels * DEGREES_PER_PIXEL;
     }
 
     public void resetRotations() {
-        previousScreenX = currentScreenX;
-        previousScreenY = currentScreenY;
+        yawPixels = 0;
+        pitchPixels = 0;
     }
 }

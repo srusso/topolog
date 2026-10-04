@@ -11,7 +11,7 @@ import com.badlogic.gdx.Gdx;
 public class Launcher extends ApplicationAdapter {
 
     private static final CameraMovementService CAMERA_MOVEMENT_SERVICE = new CameraMovementService();
-    LineModelLauncher adapter = new LineModelLauncher(CAMERA_MOVEMENT_SERVICE);
+    TopologyApp adapter = new TopologyApp(CAMERA_MOVEMENT_SERVICE);
 
     @Override
     public void create() {
