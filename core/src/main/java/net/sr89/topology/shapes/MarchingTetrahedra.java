@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * Turns an implicit surface {@code f(x, y, z) = 0} into a triangle mesh.
@@ -65,10 +66,21 @@ public final class MarchingTetrahedra {
      * @param cell size of the grid cells. Smaller cells give a finer mesh (and quadratically more triangles).
      */
     public static Model build(Field field, Vector3 min, Vector3 max, float cell, Material material) {
-        return new MarchingTetrahedra(field, min, max, cell).build(material);
+        return build(field, min, max, cell, material, null);
     }
 
-    private Model build(Material material) {
+    /**
+     * Like {@link #build(Field, Vector3, Vector3, float, Material)}, but only keeps the triangles
+     * whose center is accepted by the filter: a part of the surface.
+     *
+     * @param keep decides if a triangle is kept, given its center; null keeps all of them
+     */
+    public static Model build(Field field, Vector3 min, Vector3 max, float cell, Material material,
+                              Predicate<Vector3> keep) {
+        return new MarchingTetrahedra(field, min, max, cell).build(material, keep);
+    }
+
+    private Model build(Material material, Predicate<Vector3> keep) {
         final Vector3 p = new Vector3();
         for (int id = 0; id < values.length; id++) {
             gridPoint(id, p);
@@ -105,8 +117,12 @@ public final class MarchingTetrahedra {
             info.set(positions.get(v), normals.get(v), null, null);
             index[v] = builder.vertex(info);
         }
+        final Vector3 center = new Vector3();
         for (int[] t : triangles) {
-            builder.triangle(index[t[0]], index[t[1]], index[t[2]]);
+            center.set(positions.get(t[0])).add(positions.get(t[1])).add(positions.get(t[2])).scl(1f / 3f);
+            if (keep == null || keep.test(center)) {
+                builder.triangle(index[t[0]], index[t[1]], index[t[2]]);
+            }
         }
         return modelBuilder.end();
     }
