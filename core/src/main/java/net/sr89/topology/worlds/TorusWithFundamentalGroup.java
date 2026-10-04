@@ -15,9 +15,9 @@ import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder.VertexInfo;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import net.sr89.topology.HexColors;
+import net.sr89.topology.shapes.TubeMesh;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,9 +26,9 @@ import java.util.List;
  * The fundamental group of the (hollow) torus is isomorphic to ℤ×ℤ.
  * <p>
  * The torus is S¹×S¹, so a loop is determined (up to homotopy) by how many times it winds
- * around the "long way" (generator 'a', red) and the "short way" (generator 'b', blue).
- * This world draws a translucent torus, the two generators, and a tracer drawing the loop
- * a<sup>p</sup>b<sup>q</sup> (winding p times longitudinally and q times meridionally).
+ * around the "long way" (generator 'a', red) and the "short way" (generator 'b', cyan).
+ * This world draws a translucent torus, the two generators, the loop
+ * a<sup>p</sup>b<sup>q</sup> (winding p times longitudinally and q times meridionally), and a tracer moving along it.
  */
 public class TorusWithFundamentalGroup implements World {
     private static final float MAJOR_RADIUS = 2f;
@@ -36,51 +36,31 @@ public class TorusWithFundamentalGroup implements World {
     private static final int SEGMENTS_U = 64;
     private static final int SEGMENTS_V = 32;
 
-    private static final int GENERATOR_MARKERS = 120;
-    private static final int PATH_MARKERS = 400;
+    private static final int TUBE_SAMPLES = 400;
+    private static final int TUBE_SIDES = 8;
     private static final int WINDING_P = 2; // times around the long way
     private static final int WINDING_Q = 3; // times around the short way
     private static final float TRACER_SPEED = 0.05f; // full loops per second
+    // Slightly outside the surface so the loops aren't hidden inside it.
+    private static final float LOOP_RADIUS = MINOR_RADIUS * 1.03f;
 
-    private final Model torusModel;
-    private final Model markerModel;
-    private final Model tracerModel;
+    private final List<Model> models = new ArrayList<>();
     private final ModelInstance torus;
-    private final List<ModelInstance> generatorA = new ArrayList<>();
-    private final List<ModelInstance> generatorB = new ArrayList<>();
-    private final List<ModelInstance> path = new ArrayList<>();
+    private final ModelInstance generatorA;
+    private final ModelInstance generatorB;
+    private final ModelInstance path;
     private final ModelInstance tracer;
 
     private float progress = 0f; // in [0, 1)
     private final Vector3 tmp = new Vector3();
 
-    private final List<Model> generatorModels = new ArrayList<>();
-
     public TorusWithFundamentalGroup() {
-        torusModel = createTorusModel();
-        markerModel = createSphereModel(0.04f, HexColors.GREEN_PASTEL);
-        tracerModel = createSphereModel(0.12f, Color.YELLOW);
-
-        torus = new ModelInstance(torusModel);
-
-        // Slightly outside the surface so the markers aren't hidden inside it.
-        final float surfaceRadius = MINOR_RADIUS * 1.03f;
-        final Model aModel = createSphereModel(0.05f, Color.RED);
-        final Model bModel = createSphereModel(0.05f, Color.CYAN);
-
-        generatorModels.add(aModel);
-        generatorModels.add(bModel);
-
-        for (int i = 0; i < GENERATOR_MARKERS; i++) {
-            float t = (float) i / GENERATOR_MARKERS;
-            generatorA.add(placed(aModel, t, 0f, surfaceRadius));
-            generatorB.add(placed(bModel, 0f, t, surfaceRadius));
-        }
-        for (int i = 0; i < PATH_MARKERS; i++) {
-            float t = (float) i / PATH_MARKERS;
-            path.add(placed(markerModel, WINDING_P * t, WINDING_Q * t, surfaceRadius));
-        }
-        tracer = placed(tracerModel, 0f, 0f, surfaceRadius);
+        torus = instance(createTorusModel());
+        generatorA = instance(loopModel(1, 0, 0.03f, Color.RED));
+        generatorB = instance(loopModel(0, 1, 0.03f, Color.CYAN));
+        path = instance(loopModel(WINDING_P, WINDING_Q, 0.02f, HexColors.greenPastel()));
+        tracer = instance(createSphereModel(0.12f, Color.YELLOW));
+        reposition(0f);
     }
 
     @Override
@@ -91,43 +71,43 @@ public class TorusWithFundamentalGroup implements World {
     @Override
     public void reposition(float deltaTime) {
         progress = (progress + deltaTime * TRACER_SPEED) % 1f;
-        setPosition(tracer, WINDING_P * progress, WINDING_Q * progress, MINOR_RADIUS * 1.03f);
+        torusPoint(WINDING_P * progress, WINDING_Q * progress, LOOP_RADIUS, tmp);
+        tracer.transform.setToTranslation(tmp);
     }
 
     @Override
     public void render(ModelBatch modelBatch, Environment environment) {
         // ModelBatch draws blended renderables (the torus) after opaque ones, back to front.
-        generatorA.forEach(m -> modelBatch.render(m, environment));
-        generatorB.forEach(m -> modelBatch.render(m, environment));
-        path.forEach(m -> modelBatch.render(m, environment));
+        modelBatch.render(generatorA, environment);
+        modelBatch.render(generatorB, environment);
+        modelBatch.render(path, environment);
         modelBatch.render(tracer, environment);
         modelBatch.render(torus, environment);
     }
 
     @Override
     public void dispose() {
-        torusModel.dispose();
-        markerModel.dispose();
-        tracerModel.dispose();
-        generatorModels.forEach(Model::dispose);
+        models.forEach(Model::dispose);
     }
 
-    private ModelInstance placed(Model model, float uTurns, float vTurns, float tubeRadius) {
-        ModelInstance instance = new ModelInstance(model);
-        setPosition(instance, uTurns, vTurns, tubeRadius);
-        return instance;
+    /** Creates an instance of the model, and takes ownership of the model to dispose of it later. */
+    private ModelInstance instance(Model model) {
+        models.add(model);
+        return new ModelInstance(model);
     }
 
-    private void setPosition(ModelInstance instance, float uTurns, float vTurns, float tubeRadius) {
-        torusPoint(uTurns, vTurns, tubeRadius, tmp);
-        instance.transform.setToTranslation(tmp);
+    /** A closed tube on the surface of the torus, winding the given number of times each way. */
+    private static Model loopModel(int uWindings, int vWindings, float tubeRadius, Color color) {
+        return TubeMesh.build(
+            (t, out) -> torusPoint(uWindings * t, vWindings * t, LOOP_RADIUS, out),
+            true, TUBE_SAMPLES, TUBE_SIDES, tubeRadius, color);
     }
 
     private static Model createTorusModel() {
         ModelBuilder modelBuilder = new ModelBuilder();
         modelBuilder.begin();
         Material material = new Material(
-            ColorAttribute.createDiffuse(HexColors.GREEN_PASTEL),
+            ColorAttribute.createDiffuse(HexColors.greenPastel()),
             new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA, 0.35f),
             IntAttribute.createCullFace(GL20.GL_NONE), // hollow: visible from inside too
             // Test against the depth buffer but don't write to it, otherwise a near triangle of this
@@ -175,7 +155,7 @@ public class TorusWithFundamentalGroup implements World {
     }
 
     /**
-     * Most important method in this class. Everything else depends on it: the torus vertices (polygons) themselves, and all the generator and marker spheres.
+     * Most important method in this class. Everything else depends on it: the torus vertices (polygons) themselves, and all the generator and path tubes.
      * <p>
      * Point on a torus. u goes the long way around (about the Y axis), v goes the short way
      * (around the tube); both in turns, so 1 = one full revolution.
@@ -186,9 +166,9 @@ public class TorusWithFundamentalGroup implements World {
      * @param out Output vector
      */
     private static void torusPoint(float uTurns, float vTurns, float tubeRadius, Vector3 out) {
-        final float u = MathUtils.PI2 * uTurns;
-        final float v = MathUtils.PI2 * vTurns;
-        final float ring = MAJOR_RADIUS + tubeRadius * MathUtils.cos(v);
-        out.set(ring * MathUtils.cos(u), tubeRadius * MathUtils.sin(v), ring * MathUtils.sin(u));
+        final double u = 2 * Math.PI * uTurns;
+        final double v = 2 * Math.PI * vTurns;
+        final double ring = MAJOR_RADIUS + tubeRadius * Math.cos(v);
+        out.set((float) (ring * Math.cos(u)), (float) (tubeRadius * Math.sin(v)), (float) (ring * Math.sin(u)));
     }
 }

@@ -12,13 +12,29 @@ public class CameraMovementService {
     private static final float DEGREES_PER_PIXEL = 0.2f;
     private static final float MOVEMENT_SPEED = 20f;
 
-    private boolean seenFirstMouseMove = false;
+    /**
+     * Mouse movement bigger than this (in pixels) within a single frame is considered a glitch rather than
+     * a real movement. The cursor position can be re-based, e.g. at startup or when the window is activated,
+     * which shows up as one huge bogus delta.
+     */
+    private static final int MAX_PLAUSIBLE_MOUSE_DELTA = 150;
+
+    private boolean focused = true;
+    private boolean cursorCaptured = false;
+    private boolean ignoreNextMouseMove = true; // the first reported delta is measured from (0, 0)
     private int yawPixels = 0;
     private int pitchPixels = 0;
 
-    /** The cursor is captured, so the mouse can turn the camera indefinitely without hitting the screen edge. */
-    public void captureMouse() {
-        Gdx.input.setCursorCatched(true);
+    /** Call when the window gets focus. */
+    public void focusGained() {
+        focused = true;
+        // the cursor may be recentered as the window gets activated, which can look like a big movement
+        ignoreNextMouseMove = true;
+    }
+
+    /** Call when the window loses focus. */
+    public void focusLost() {
+        focused = false;
     }
 
     public float forwardMovementDelta(float deltaTime) {
@@ -35,14 +51,25 @@ public class CameraMovementService {
 
     /** Reads the mouse movement for this frame. Call once per frame, before reading the rotations. */
     public void update() {
+        // The cursor is captured while we have focus, so the mouse can turn the camera indefinitely
+        // without hitting the screen edge, and released otherwise.
+        if (focused != cursorCaptured) {
+            Gdx.input.setCursorCatched(focused);
+            cursorCaptured = focused;
+        }
+
         final int dx = Gdx.input.getDeltaX();
         final int dy = Gdx.input.getDeltaY();
-        if (!seenFirstMouseMove && (dx != 0 || dy != 0)) {
-            // The very first mouse event is measured from an initial position of (0, 0), not from where the
-            // cursor actually was, so it's a huge bogus jump. Ignore it.
-            seenFirstMouseMove = true;
-            yawPixels = 0;
-            pitchPixels = 0;
+        yawPixels = 0;
+        pitchPixels = 0;
+        if (!focused || (dx == 0 && dy == 0)) {
+            return;
+        }
+        if (ignoreNextMouseMove) {
+            ignoreNextMouseMove = false;
+            return;
+        }
+        if (Math.abs(dx) > MAX_PLAUSIBLE_MOUSE_DELTA || Math.abs(dy) > MAX_PLAUSIBLE_MOUSE_DELTA) {
             return;
         }
         yawPixels = dx;

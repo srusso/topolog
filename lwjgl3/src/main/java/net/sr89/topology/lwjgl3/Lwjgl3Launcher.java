@@ -3,7 +3,8 @@ package net.sr89.topology.lwjgl3;
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import net.sr89.topology.Launcher;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowAdapter;
+import net.sr89.topology.TopologyApp;
 
 /** Launches the desktop (LWJGL3) application. */
 public class Lwjgl3Launcher {
@@ -13,11 +14,24 @@ public class Lwjgl3Launcher {
     }
 
     private static Lwjgl3Application createApplication() {
-        return new Lwjgl3Application(new Launcher(), getDefaultConfiguration());
+        final TopologyApp app = new TopologyApp();
+        return new Lwjgl3Application(app, getDefaultConfiguration(app));
     }
 
-    private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
+    private static Lwjgl3ApplicationConfiguration getDefaultConfiguration(TopologyApp app) {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
+        // Used to capture the mouse only while the window has focus.
+        configuration.setWindowListener(new Lwjgl3WindowAdapter() {
+            @Override
+            public void focusGained() {
+                app.onFocusGained();
+            }
+
+            @Override
+            public void focusLost() {
+                app.onFocusLost();
+            }
+        });
         configuration.setTitle("topology-visual");
         configuration.useVsync(true);
         //// Limits FPS to the refresh rate of the currently active monitor.

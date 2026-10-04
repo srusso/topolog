@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder.VertexInfo;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import net.sr89.topology.math.Curve;
 
@@ -37,36 +36,44 @@ public final class TubeMesh {
             Usage.Position | Usage.Normal, new Material(ColorAttribute.createDiffuse(color)));
 
         final int rings = closed ? samples : samples + 1;
-        final short[][] index = new short[rings][sides];
+        final Vector3[] centers = new Vector3[rings];
+        final Vector3[] tangents = new Vector3[rings];
+        final Vector3[] normals = new Vector3[rings]; // first axis of each ring's plane
 
-        final Vector3 center = new Vector3();
-        final Vector3 tangent = new Vector3();
-        final Vector3 normal = new Vector3();   // first axis of the ring's plane
-        final Vector3 binormal = new Vector3(); // second axis of the ring's plane
-        final Vector3 offset = new Vector3();
-        final Vector3 position = new Vector3();
         final Vector3 ahead = new Vector3();
-        final VertexInfo info = new VertexInfo();
-
+        final Vector3 behind = new Vector3();
         for (int i = 0; i < rings; i++) {
             final float t = (float) i / samples;
-            curve.pointAt(t, center);
-            tangentAt(curve, t, tangent, ahead, position);
+            centers[i] = new Vector3();
+            tangents[i] = new Vector3();
+            normals[i] = new Vector3();
+            curve.pointAt(t, centers[i]);
+            tangentAt(curve, t, tangents[i], ahead, behind);
 
             if (i == 0) {
-                initialNormal(tangent, normal);
+                initialNormal(tangents[i], normals[i]);
             } else {
                 // Parallel transport: carry the previous normal along, only removing the part that
                 // is no longer perpendicular to the new tangent. This keeps the ring from twisting.
-                normal.mulAdd(tangent, -normal.dot(tangent)).nor();
+                transport(normals[i - 1], tangents[i], normals[i]);
             }
-            binormal.set(tangent).crs(normal);
+        }
+        if (closed) {
+            spreadTwist(tangents, normals);
+        }
 
+        final short[][] index = new short[rings][sides];
+        final Vector3 binormal = new Vector3(); // second axis of the ring's plane
+        final Vector3 offset = new Vector3();
+        final Vector3 position = new Vector3();
+        final VertexInfo info = new VertexInfo();
+        for (int i = 0; i < rings; i++) {
+            binormal.set(tangents[i]).crs(normals[i]);
             for (int j = 0; j < sides; j++) {
-                final float angle = MathUtils.PI2 * j / sides;
+                final double angle = 2 * Math.PI * j / sides;
                 // unit vector pointing from the center line out to the surface; it's also the surface normal
-                offset.set(normal).scl(MathUtils.cos(angle)).mulAdd(binormal, MathUtils.sin(angle));
-                position.set(center).mulAdd(offset, radius);
+                offset.set(normals[i]).scl((float) Math.cos(angle)).mulAdd(binormal, (float) Math.sin(angle));
+                position.set(centers[i]).mulAdd(offset, radius);
                 info.set(position, offset, null, null);
                 index[i][j] = builder.vertex(info);
             }
@@ -84,6 +91,30 @@ public final class TubeMesh {
             }
         }
         return modelBuilder.end();
+    }
+
+    /** Carries {@code previous} to a plane perpendicular to {@code tangent}, with the smallest possible rotation. */
+    private static Vector3 transport(Vector3 previous, Vector3 tangent, Vector3 out) {
+        return out.set(previous).mulAdd(tangent, -previous.dot(tangent)).nor();
+    }
+
+    /**
+     * Carrying a normal all the way around a closed, non-planar curve doesn't necessarily bring it back to where it
+     * started, so the last ring would not line up with the first. We measure that angle and undo it gradually
+     * over all the rings, so the mismatch is invisible.
+     */
+    private static void spreadTwist(Vector3[] tangents, Vector3[] normals) {
+        final int rings = normals.length;
+        final Vector3 first = normals[0];
+        final Vector3 arrived = transport(normals[rings - 1], tangents[0], new Vector3());
+        final double twist = Math.atan2(tangents[0].dot(new Vector3(first).crs(arrived)), first.dot(arrived));
+
+        final Vector3 sideways = new Vector3();
+        for (int i = 1; i < rings; i++) {
+            final double angle = -twist * i / rings;
+            sideways.set(tangents[i]).crs(normals[i]);
+            normals[i].scl((float) Math.cos(angle)).mulAdd(sideways, (float) Math.sin(angle));
+        }
     }
 
     private static void tangentAt(Curve curve, float t, Vector3 out, Vector3 tmpA, Vector3 tmpB) {

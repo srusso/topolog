@@ -17,12 +17,15 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
-import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import net.sr89.topology.input.CameraMovementService;
+import net.sr89.topology.input.ControlInputProcessor;
 import net.sr89.topology.worlds.S1WithCoveringSpace;
 import net.sr89.topology.worlds.TorusWithFundamentalGroup;
 import net.sr89.topology.worlds.World;
+
+import java.util.List;
 
 import static net.sr89.topology.shapes.GridShape.createAxes;
 
@@ -31,41 +34,39 @@ public class TopologyApp extends ApplicationAdapter {
     private Stage stage;
     private PerspectiveCamera camera;
     private ModelBatch modelBatch;
-    private World s1WithCoveringSpace;
-    private World torusWithFundamentalGroup;
+    private List<World> worlds;
     private World currentWorld;
     private Environment environment;
     private BitmapFont titleFont;
-    private LabelStyle titleStyle;
+    private Label titleLabel;
     private Model axesModel;
     private ModelInstance axes;
 
     private static final float MAX_PITCH = 89f;
 
-    private final CameraMovementService cameraMovementService;
+    private static final float TITLE_PADDING = 24f;
+
+    private final CameraMovementService cameraMovementService = new CameraMovementService();
     private final Vector3 scratch = new Vector3();
 
-    private final Color BACKGROUND_COLOR = HexColors.VERY_DARK_BLUE;
-
-    public TopologyApp(CameraMovementService cameraMovementService) {
-        this.cameraMovementService = cameraMovementService;
-    }
+    private final Color backgroundColor = HexColors.veryDarkBlue();
 
     @Override
     public void create() {
-        cameraMovementService.captureMouse();
-
         stage = new Stage(new ScreenViewport());
 
         titleFont = new BitmapFont(Gdx.files.internal("bitmapfont/Amble-Regular-26.fnt"));
-        titleStyle = new LabelStyle();
-        titleStyle.font = titleFont;
-        titleStyle.fontColor = Color.RED;
+        titleLabel = new Label("", new LabelStyle(titleFont, Color.RED));
+        final Table root = new Table();
+        root.setFillParent(true);
+        root.top().left().pad(TITLE_PADDING);
+        root.add(titleLabel);
+        stage.addActor(root);
 
-        s1WithCoveringSpace = new S1WithCoveringSpace();
-        torusWithFundamentalGroup = new TorusWithFundamentalGroup();
-
+        worlds = List.of(new S1WithCoveringSpace(), new TorusWithFundamentalGroup());
         selectWorld(1);
+
+        Gdx.input.setInputProcessor(new ControlInputProcessor(this::selectWorld));
 
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(0f, 7f, 7f);
@@ -86,7 +87,7 @@ public class TopologyApp extends ApplicationAdapter {
 
     @Override
     public void render() {
-        Gdx.gl.glClearColor(BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, 1f);
+        Gdx.gl.glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
         final float deltaTime = Gdx.graphics.getDeltaTime();
@@ -107,6 +108,17 @@ public class TopologyApp extends ApplicationAdapter {
         stage.draw();
     }
 
+    /** Call when the window gets focus. */
+    public void onFocusGained() {
+        cameraMovementService.focusGained();
+    }
+
+    /** Call when the window loses focus. */
+    public void onFocusLost() {
+        cameraMovementService.focusLost();
+    }
+
+    @Override
     public void resize(int width, int height) {
         if (width <= 0 || height <= 0 || stage == null) {
             return;
@@ -115,22 +127,15 @@ public class TopologyApp extends ApplicationAdapter {
         camera.viewportWidth = width;
         camera.viewportHeight = height;
         camera.update();
-        // the title position depends on the window size
-        stage.clear();
-        stage.addActor(getTitleLabel());
     }
 
+    /** @param selection The 1-based number of the world to show. Numbers without a world are ignored. */
     public void selectWorld(int selection) {
-        stage.clear();
-        switch (selection) {
-            case 1:
-                currentWorld = s1WithCoveringSpace;
-                break;
-            case 2:
-                currentWorld = torusWithFundamentalGroup;
-                break;
+        if (selection < 1 || selection > worlds.size()) {
+            return;
         }
-        stage.addActor(getTitleLabel());
+        currentWorld = worlds.get(selection - 1);
+        titleLabel.setText(currentWorld.getWorldTitle());
     }
 
     private void updateCameraRotation() {
@@ -162,21 +167,6 @@ public class TopologyApp extends ApplicationAdapter {
         axesModel.dispose();
         stage.dispose();
         titleFont.dispose();
-        s1WithCoveringSpace.dispose();
-        torusWithFundamentalGroup.dispose();
-    }
-
-    private Label getTitleLabel() {
-        final int row_height = Gdx.graphics.getWidth() / 12;
-        final int col_width = Gdx.graphics.getWidth() / 12;
-
-        Label title = new Label(currentWorld.getWorldTitle(), titleStyle);
-        title.setSize(col_width, row_height);
-        title.setPosition(
-            col_width / 2F,
-            Gdx.graphics.getHeight() - (row_height)
-        );
-        title.setAlignment(Align.left);
-        return title;
+        worlds.forEach(World::dispose);
     }
 }

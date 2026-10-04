@@ -20,18 +20,18 @@ public final class Tubes {
 
     /** S1: all points at distance 1 from the origin in the XZ plane. It never moves. */
     public static Tube unitCircle() {
-        final Curve circle = (t, out) -> out.set(MathUtils.cos(MathUtils.PI2 * t), 0f, MathUtils.sin(MathUtils.PI2 * t));
-        return new Tube(TubeMesh.build(circle, true, CIRCLE_SAMPLES, SIDES, TUBE_RADIUS, HexColors.GREEN_PASTEL), null);
+        final Curve circle = (t, out) -> out.set((float) Math.cos(2 * Math.PI * t), 0f, (float) Math.sin(2 * Math.PI * t));
+        return new Tube(TubeMesh.build(circle, true, CIRCLE_SAMPLES, SIDES, TUBE_RADIUS, HexColors.greenPastel()), null);
     }
 
     /** Covering space for S1, see {@link #unitCircle()}. It slowly rotates around the Y axis. */
     public static Tube helix() {
         final Curve helix = (t, out) -> {
-            final float angle = MathUtils.PI2 * HELIX_TURNS * t;
-            out.set(MathUtils.cos(angle), HELIX_TURNS * t, MathUtils.sin(angle));
+            final double angle = 2 * Math.PI * HELIX_TURNS * t;
+            out.set((float) Math.cos(angle), HELIX_TURNS * t, (float) Math.sin(angle));
         };
         return new Tube(
-            TubeMesh.build(helix, false, HELIX_SAMPLES, SIDES, TUBE_RADIUS, HexColors.GREEN_PASTEL),
+            TubeMesh.build(helix, false, HELIX_SAMPLES, SIDES, TUBE_RADIUS, HexColors.greenPastel()),
             // Turning the helix is just rotating the whole mesh about Y.
             (transform, turns) -> transform
                 .setToTranslation(0f, HELIX_UPWARD_TRANSLATION, 0f)

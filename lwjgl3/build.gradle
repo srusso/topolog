@@ -17,8 +17,7 @@ plugins {
 import io.github.fourlastor.construo.Target
 
 sourceSets.main.resources.srcDirs += [ rootProject.file('assets').path ]
-mainClassName = 'net.sr89.topology.lwjgl3.Lwjgl3Launcher'
-application.setMainClass(mainClassName)
+application.mainClass = 'net.sr89.topology.lwjgl3.Lwjgl3Launcher'
 eclipse.project.name = appName + '-lwjgl3'
 java.sourceCompatibility = 17
 java.targetCompatibility = 17
@@ -55,7 +54,7 @@ jar {
   }
 // setting the manifest makes the JAR runnable.
   manifest {
-    attributes 'Main-Class': project.mainClassName
+    attributes 'Main-Class': application.mainClass.get()
   }
 // this last step may help on some OSes that need extra instruction to make runnable JARs.
   doLast {
@@ -68,8 +67,6 @@ construo {
     name.set(appName)
     // human-readable name, used for example in the `.app` name for macOS
     humanName.set(appName)
-    // Optional, defaults to project version
-    version.set("0.0.0")
 
     targets.configure {
       create("linuxX64", Target.Linux) {
@@ -80,7 +77,7 @@ construo {
         architecture.set(Target.Architecture.AARCH64)
         jdkUrl.set("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.11%2B9/OpenJDK17U-jdk_aarch64_mac_hotspot_17.0.11_9.tar.gz")
         // macOS needs an identifier
-        identifier.set("i.should.be.changed.before.merge." + appName)
+        identifier.set("net.sr89.topology." + appName)
         // Optional: icon for macOS
         macIcon.set(project.file("icons/logo.icns"))
       }
@@ -88,7 +85,7 @@ construo {
         architecture.set(Target.Architecture.X86_64)
         jdkUrl.set("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.11%2B9/OpenJDK17U-jdk_x64_mac_hotspot_17.0.11_9.tar.gz")
         // macOS needs an identifier
-        identifier.set("i.should.be.changed.before.merge." + appName)
+        identifier.set("net.sr89.topology." + appName)
         // Optional: icon for macOS
         macIcon.set(project.file("icons/logo.icns"))
       }

@@ -16,7 +16,8 @@ public class Tube {
     public interface Placement {
         /**
          * @param transform The transform to overwrite
-         * @param turns How far the animation has progressed, in full turns
+         * @param turns How far the animation has progressed, in full turns. Placements must look the same
+         *              for turns and turns + 1, since the value wraps around.
          */
         void place(Matrix4 transform, float turns);
     }
@@ -45,7 +46,7 @@ public class Tube {
 
     public void reposition(float deltaTime) {
         if (placement != null) {
-            turns += deltaTime * TURNS_PER_SECOND;
+            turns = (turns + deltaTime * TURNS_PER_SECOND) % 1f;
             placement.place(instance.transform, turns);
         }
     }
