@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Color;
 public final class HexColors {
     private static final String VERY_DARK_BLUE = "213339";
     private static final String GREEN_PASTEL = "A5B68D";
+    private static final String BLUE_PASTEL = "7FA3D6";
 
     private HexColors() {}
 
@@ -15,5 +16,9 @@ public final class HexColors {
 
     public static Color greenPastel() {
         return Color.valueOf(GREEN_PASTEL);
+    }
+
+    public static Color bluePastel() {
+        return Color.valueOf(BLUE_PASTEL);
     }
 }
