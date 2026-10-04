@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Vector3;
 import net.sr89.topology.HexColors;
 
 /**
- * Covering space for the unit sphere, see {@link UnitSphere}.
+ * Covering space for the unit sphere, see {@link UnitCircle}.
  */
 public class CylinderHelix extends Sphere1 {
     private static final int SAMPLES = 400;
@@ -26,8 +26,7 @@ public class CylinderHelix extends Sphere1 {
 
     @Override
     protected void updateTransform(Matrix4 transform, float rads) {
-        // Turning the helix is just rotating the whole mesh about Y. Positive rotations about Y move
-        // points clockwise seen from above, hence the minus to make it wind the way it always did.
+        // Turning the helix is just rotating the whole mesh about Y.
         transform.setToTranslation(0f, UPWARD_TRANSLATION, 0f).rotateRad(Vector3.Y, -MathUtils.PI2 * rads);
     }
 }
