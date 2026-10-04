@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.glutils.HdpiUtils;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -21,6 +22,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import net.sr89.topology.input.CameraMovementService;
 import net.sr89.topology.input.ControlInputProcessor;
+import net.sr89.topology.WorldGallery.Framing;
 import net.sr89.topology.worlds.GenusTwoSurface;
 import net.sr89.topology.worlds.S1WithCoveringSpace;
 import net.sr89.topology.worlds.TorusWithFundamentalGroup;
@@ -40,6 +42,9 @@ public class TopologyApp extends ApplicationAdapter {
     private Environment environment;
     private BitmapFont titleFont;
     private Label titleLabel;
+    private Table titleRoot;
+    private WorldGallery gallery;
+    private List<WorldGallery.Entry> galleryEntries;
     private Model axesModel;
     private ModelInstance axes;
 
@@ -58,13 +63,18 @@ public class TopologyApp extends ApplicationAdapter {
 
         titleFont = new BitmapFont(Gdx.files.internal("bitmapfont/Amble-Regular-26.fnt"));
         titleLabel = new Label("", new LabelStyle(titleFont, Color.RED));
-        final Table root = new Table();
-        root.setFillParent(true);
-        root.top().left().pad(TITLE_PADDING);
-        root.add(titleLabel);
-        stage.addActor(root);
+        titleRoot = new Table();
+        titleRoot.setFillParent(true);
+        titleRoot.top().left().pad(TITLE_PADDING);
+        titleRoot.add(titleLabel);
+        stage.addActor(titleRoot);
 
-        worlds = List.of(new S1WithCoveringSpace(), new TorusWithFundamentalGroup(), new GenusTwoSurface());
+        // each world, with where to point a thumbnail camera to see all of it
+        galleryEntries = List.of(
+            new WorldGallery.Entry(new S1WithCoveringSpace(), new Framing(new Vector3(0f, 1.85f, 0f), 2.1f)),
+            new WorldGallery.Entry(new TorusWithFundamentalGroup(), new Framing(new Vector3(), 2.8f)),
+            new WorldGallery.Entry(new GenusTwoSurface(), new Framing(new Vector3(), 2.4f)));
+        worlds = galleryEntries.stream().map(WorldGallery.Entry::world).toList();
         selectWorld(1);
 
         Gdx.input.setInputProcessor(new ControlInputProcessor(this::selectWorld));
@@ -84,6 +94,10 @@ public class TopologyApp extends ApplicationAdapter {
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
         environment.add(new DirectionalLight().set(1f, 1f, 1f, -1f, -0.8f, -0.2f));
+
+        gallery = new WorldGallery(galleryEntries, environment, modelBatch, titleLabel.getStyle());
+        stage.addActor(gallery.getNumbers());
+        resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
     @Override
@@ -97,14 +111,20 @@ public class TopologyApp extends ApplicationAdapter {
         updateCameraRotation();
         camera.update();
 
-        currentWorld.reposition(deltaTime);
+        // all worlds keep moving, so the thumbnails are alive
+        worlds.forEach(world -> world.reposition(deltaTime));
 
+        gallery.render(worlds.indexOf(currentWorld));
+
+        // the main view takes the space to the right of the gallery
+        HdpiUtils.glViewport((int) gallery.getWidth(), 0, Gdx.graphics.getWidth() - (int) gallery.getWidth(), Gdx.graphics.getHeight());
         modelBatch.begin(camera);
         modelBatch.render(axes, environment);
         currentWorld.render(modelBatch, environment);
 
         modelBatch.end();
 
+        stage.getViewport().apply();
         stage.act();
         stage.draw();
     }
@@ -125,7 +145,9 @@ public class TopologyApp extends ApplicationAdapter {
             return;
         }
         stage.getViewport().update(width, height, true);
-        camera.viewportWidth = width;
+        gallery.layout(width, height);
+        titleRoot.padLeft(gallery.getWidth() + TITLE_PADDING);
+        camera.viewportWidth = width - gallery.getWidth();
         camera.viewportHeight = height;
         camera.update();
     }
