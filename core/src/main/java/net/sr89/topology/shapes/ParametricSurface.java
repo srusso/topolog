@@ -80,7 +80,8 @@ public final class ParametricSurface {
         return new Material(ColorAttribute.createDiffuse(color), IntAttribute.createCullFace(GL20.GL_NONE));
     }
 
-    private static void normalAt(Surface surface, float u, float v, Vector3 out) {
+    /** The unit normal of the surface at (u, v): the cross product of the u and v derivatives, normalized. */
+    public static void normalAt(Surface surface, float u, float v, Vector3 out) {
         // Stay inside [0, 1] at the edges, by using a one-sided difference there
         final float u0 = Math.max(u - DERIVATIVE_STEP, 0f), u1 = Math.min(u + DERIVATIVE_STEP, 1f);
         final float v0 = Math.max(v - DERIVATIVE_STEP, 0f), v1 = Math.min(v + DERIVATIVE_STEP, 1f);
