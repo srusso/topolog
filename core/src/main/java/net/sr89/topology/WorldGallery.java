@@ -34,6 +34,10 @@ public class WorldGallery {
 
     private static final float PADDING = 16f;
     private static final float MAX_THUMBNAIL_SIZE = 240f;
+    /** Below this size, the thumbnails stop shrinking and the gallery scrolls instead. */
+    private static final float MIN_THUMBNAIL_SIZE = 130f;
+    /** Space for the "N more" indications above and below, when scrolling. */
+    private static final float INDICATOR_HEIGHT = 30f;
     private static final float MAX_WIDTH_FRACTION = 0.2f;
     private static final float BORDER = 3f;
     private static final float FIELD_OF_VIEW = 45f;
@@ -48,6 +52,8 @@ public class WorldGallery {
     private final PerspectiveCamera camera = new PerspectiveCamera(FIELD_OF_VIEW, 1f, 1f);
     private final Group numbers = new Group();
     private final List<Label> numberLabels = new ArrayList<>();
+    private final Label moreAbove;
+    private final Label moreBelow;
 
     private final Color background = HexColors.veryDarkBlue().mul(0.75f);
     private final Color selectedBackground = HexColors.veryDarkBlue().lerp(Color.WHITE, 0.1f);
@@ -55,6 +61,11 @@ public class WorldGallery {
 
     private float thumbnailSize;
     private float width;
+    private float windowHeight;
+    /** How many thumbnails fit in the window; if there are more worlds than that, the gallery scrolls. */
+    private int visibleCount;
+    /** The index of the first world shown. */
+    private int firstVisible;
 
     public WorldGallery(List<Entry> entries, Environment environment, ModelBatch modelBatch, LabelStyle labelStyle) {
         this.entries = entries;
@@ -63,10 +74,16 @@ public class WorldGallery {
         camera.near = 0.1f;
         camera.far = 100f;
         for (int i = 0; i < entries.size(); i++) {
-            final Label number = new Label(String.valueOf(i + 1), labelStyle);
+            // The keys 1 to 9 select the first nine worlds, 0 the tenth. The others can only be reached by stepping.
+            final Label number = new Label(i == 9 ? "0" : String.valueOf(i + 1), labelStyle);
             numberLabels.add(number);
             numbers.addActor(number);
         }
+        moreAbove = new Label("", labelStyle);
+        moreBelow = new Label("", labelStyle);
+        numbers.addActor(moreAbove);
+        numbers.addActor(moreBelow);
+        visibleCount = entries.size();
     }
 
     /** Labels with the number key of each world. Add them to the stage. */
@@ -81,24 +98,27 @@ public class WorldGallery {
 
     /** Recomputes the layout for a window of the given size. */
     public void layout(int windowWidth, int windowHeight) {
+        this.windowHeight = windowHeight;
         final int count = entries.size();
-        final float fitHeight = (windowHeight - PADDING * (count + 1)) / count;
+        final int fitting = (int) ((windowHeight - PADDING) / (MIN_THUMBNAIL_SIZE + PADDING));
+        // if they don't all fit, the space needed for the "N more" indications leaves room for fewer
+        final int fittingWhenScrolling = (int) ((windowHeight - PADDING - 2 * INDICATOR_HEIGHT) / (MIN_THUMBNAIL_SIZE + PADDING));
+        visibleCount = count <= fitting ? count : Math.max(1, fittingWhenScrolling);
+        final float indicators = scrolls() ? 2 * INDICATOR_HEIGHT : 0f;
+
+        final float fitHeight = (windowHeight - indicators - PADDING * (visibleCount + 1)) / visibleCount;
         final float fitWidth = windowWidth * MAX_WIDTH_FRACTION - 2 * PADDING;
         thumbnailSize = Math.max(1f, Math.min(MAX_THUMBNAIL_SIZE, Math.min(fitHeight, fitWidth)));
         width = thumbnailSize + 2 * PADDING;
-
-        for (int i = 0; i < count; i++) {
-            final Label number = numberLabels.get(i);
-            number.setPosition(PADDING + 6f, thumbnailBottom(i, windowHeight) + thumbnailSize - number.getHeight() - 4f);
-        }
+        updateLabels();
     }
 
     /** Draws the thumbnails. Leaves the GL viewport and scissor test as they were found (full window, no scissor). */
     public void render(int selectedIndex) {
-        final int windowHeight = Gdx.graphics.getHeight();
+        scrollTo(selectedIndex);
         Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
-        for (int i = 0; i < entries.size(); i++) {
-            final float bottom = thumbnailBottom(i, windowHeight);
+        for (int i = firstVisible; i < firstVisible + visibleCount; i++) {
+            final float bottom = thumbnailBottom(i - firstVisible);
             if (i == selectedIndex) {
                 clear(PADDING - BORDER, bottom - BORDER, thumbnailSize + 2 * BORDER, border);
             }
@@ -117,9 +137,45 @@ public class WorldGallery {
         HdpiUtils.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
-    /** The y coordinate of the bottom of a thumbnail; the first world is on top. */
-    private float thumbnailBottom(int index, int windowHeight) {
-        return windowHeight - PADDING - (index + 1) * thumbnailSize - index * PADDING;
+    private boolean scrolls() {
+        return entries.size() > visibleCount;
+    }
+
+    /** Scrolls the least that's needed for the selected world to be shown. */
+    private void scrollTo(int selectedIndex) {
+        final int before = firstVisible;
+        if (selectedIndex < firstVisible) {
+            firstVisible = selectedIndex;
+        } else if (selectedIndex >= firstVisible + visibleCount) {
+            firstVisible = selectedIndex - visibleCount + 1;
+        }
+        firstVisible = Math.max(0, Math.min(firstVisible, entries.size() - visibleCount));
+        if (firstVisible != before) {
+            updateLabels();
+        }
+    }
+
+    /** Puts the number of each shown world on its thumbnail, hides the others, and shows how many are out of view. */
+    private void updateLabels() {
+        for (int i = 0; i < entries.size(); i++) {
+            final Label number = numberLabels.get(i);
+            final boolean shown = i >= firstVisible && i < firstVisible + visibleCount;
+            number.setVisible(shown);
+            if (shown) {
+                number.setPosition(PADDING + 6f, thumbnailBottom(i - firstVisible) + thumbnailSize - number.getHeight() - 4f);
+            }
+        }
+        final int above = firstVisible, below = entries.size() - firstVisible - visibleCount;
+        moreAbove.setText(above > 0 ? "^ " + above + " more" : "");
+        moreBelow.setText(below > 0 ? "v " + below + " more" : "");
+        moreAbove.setPosition(PADDING, windowHeight - INDICATOR_HEIGHT + 4f);
+        moreBelow.setPosition(PADDING, 4f);
+    }
+
+    /** The y coordinate of the bottom of a thumbnail, given its place from the top among the ones shown. */
+    private float thumbnailBottom(int slot) {
+        final float top = windowHeight - PADDING - (scrolls() ? INDICATOR_HEIGHT : 0f);
+        return top - (slot + 1) * thumbnailSize - slot * PADDING;
     }
 
     /** Fills a square of the window with a color, and clears its depth buffer, then restricts drawing to it. */

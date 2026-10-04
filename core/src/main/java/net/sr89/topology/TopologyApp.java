@@ -93,7 +93,7 @@ public class TopologyApp extends ApplicationAdapter {
         worlds = galleryEntries.stream().map(WorldGallery.Entry::world).toList();
         selectWorld(1);
 
-        Gdx.input.setInputProcessor(new ControlInputProcessor(this::selectWorld));
+        Gdx.input.setInputProcessor(new ControlInputProcessor(this::selectWorld, this::stepWorld));
 
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(0f, 7f, 7f);
@@ -167,6 +167,12 @@ public class TopologyApp extends ApplicationAdapter {
         camera.viewportWidth = width - gallery.getWidth();
         camera.viewportHeight = height;
         camera.update();
+    }
+
+    /** @param delta 1 to show the next world, -1 to show the previous one; going past the end wraps around */
+    public void stepWorld(int delta) {
+        final int index = Math.floorMod(worlds.indexOf(currentWorld) + delta, worlds.size());
+        selectWorld(index + 1);
     }
 
     /** @param selection The 1-based number of the world to show. Numbers without a world are ignored. */
