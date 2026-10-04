@@ -23,6 +23,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import net.sr89.topology.input.CameraMovementService;
 import net.sr89.topology.input.ControlInputProcessor;
 import net.sr89.topology.WorldGallery.Framing;
+import net.sr89.topology.worlds.FundamentalPolygons;
 import net.sr89.topology.worlds.GenusTwoSurface;
 import net.sr89.topology.worlds.KleinBottle;
 import net.sr89.topology.worlds.MobiusBand;
@@ -83,7 +84,8 @@ public class TopologyApp extends ApplicationAdapter {
             new WorldGallery.Entry(new PathLiftingOnCircle(), new Framing(new Vector3(0f, 1.85f, 0f), 2.1f)),
             new WorldGallery.Entry(new KleinBottle(), new Framing(new Vector3(), 3.0f)),
             new WorldGallery.Entry(new ProjectivePlane(), new Framing(new Vector3(), 3.0f)),
-            new WorldGallery.Entry(new MobiusBand(), new Framing(new Vector3(), 2.4f)));
+            new WorldGallery.Entry(new MobiusBand(), new Framing(new Vector3(), 2.4f)),
+            new WorldGallery.Entry(new FundamentalPolygons(), new Framing(new Vector3(0f, 1.2f, 0f), 3.6f)));
         worlds = galleryEntries.stream().map(WorldGallery.Entry::world).toList();
         selectWorld(1);
 
@@ -134,6 +136,7 @@ public class TopologyApp extends ApplicationAdapter {
 
         modelBatch.end();
 
+        titleLabel.setText(currentWorld.getWorldTitle()); // some worlds change their title as they go
         stage.getViewport().apply();
         stage.act();
         stage.draw();
