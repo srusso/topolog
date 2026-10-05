@@ -12,6 +12,8 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder.VertexInfo;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 import java.util.ArrayList;
@@ -60,6 +62,20 @@ public class FoldingMesh {
      */
     public FoldingMesh(List<Vector3> flatPositions, List<int[]> triangles, List<Color> colors,
                        List<Vector3> foldedPositions, List<Vector3> foldedNormals, Material material) {
+        this(flatPositions, triangles, colors, foldedPositions, foldedNormals, material, null, null);
+    }
+
+    /**
+     * Like the other constructors, but the material also has a texture (the diffuse texture of the material), with the
+     * texture coordinates of each vertex. A texture is sharper than colors at the vertices when the triangles are
+     * irregular: the colors of the vertices are blended linearly across each triangle, however long and thin it is.
+     *
+     * @param textureCoordinates the coordinates of each vertex in the texture
+     * @param texture            the texture of the material, which is disposed of with the mesh
+     */
+    public FoldingMesh(List<Vector3> flatPositions, List<int[]> triangles, List<Color> colors,
+                       List<Vector3> foldedPositions, List<Vector3> foldedNormals, Material material,
+                       List<Vector2> textureCoordinates, Texture texture) {
         final int count = flatPositions.size();
         this.triangles = triangles.toArray(new int[0][]);
         flat = flatPositions.stream().map(Vector3::new).toArray(Vector3[]::new);
@@ -75,18 +91,22 @@ public class FoldingMesh {
 
         final ModelBuilder modelBuilder = new ModelBuilder();
         modelBuilder.begin();
-        final MeshPartBuilder builder = modelBuilder.part("folding", GL20.GL_TRIANGLES,
-            Usage.Position | Usage.Normal | Usage.ColorUnpacked, material);
+        final long attributes = Usage.Position | Usage.Normal | Usage.ColorUnpacked
+            | (textureCoordinates == null ? 0 : Usage.TextureCoordinates);
+        final MeshPartBuilder builder = modelBuilder.part("folding", GL20.GL_TRIANGLES, attributes, material);
         final short[] index = new short[count];
         final VertexInfo info = new VertexInfo();
         for (int i = 0; i < count; i++) {
-            info.set(flat[i], flatNormals[i], colors.get(i), null);
+            info.set(flat[i], flatNormals[i], colors.get(i), textureCoordinates == null ? null : textureCoordinates.get(i));
             index[i] = builder.vertex(info);
         }
         for (int[] t : this.triangles) {
             builder.triangle(index[t[0]], index[t[1]], index[t[2]]);
         }
         model = modelBuilder.end();
+        if (texture != null) {
+            model.manageDisposable(texture);
+        }
         instance = new ModelInstance(model);
         mesh = model.meshes.first();
         vertices = new float[mesh.getNumVertices() * mesh.getVertexSize() / 4];

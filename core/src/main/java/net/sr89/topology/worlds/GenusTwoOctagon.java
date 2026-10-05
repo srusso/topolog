@@ -1,6 +1,11 @@
 package net.sr89.topology.worlds;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import net.sr89.topology.shapes.FoldingMesh;
 import net.sr89.topology.shapes.MarchingTetrahedra;
@@ -27,6 +32,7 @@ import java.util.List;
 final class GenusTwoOctagon {
     private static final float CELL = 1f / 32f;
     private static final float FAN_RADIUS = 0.075f;
+    private static final int TEXTURE_SIZE = 1024;
     /** Which side of the octagon each loop is, as a color; the sides that are glued together have the same color. */
     static final Color[] LOOP_COLORS = {Color.RED, Color.CYAN, Color.ORANGE, Color.MAGENTA};
 
@@ -82,28 +88,60 @@ final class GenusTwoOctagon {
             normals.add(new Vector3(n.x, n.z, -n.y));
         }
 
-        final float apothem = octagonRadius * (float) Math.cos(Math.PI / 8);
+        // The colored borders are in a texture of the flat octagon, not in colors at the vertices: the triangles along the sides are
+        // long and thin, and colors at the vertices would be blended into ragged spikes. A vertex finds its place in the texture
+        // from its flat position.
+        final Pixmap pixmap = borderPixmap(octagonRadius, edgeBand, result.edgeLoops(), plain);
+        final Texture texture = new Texture(pixmap, true);
+        pixmap.dispose();
+        texture.setFilter(Texture.TextureFilter.MipMapLinearLinear, Texture.TextureFilter.Linear);
         final List<Color> colors = new ArrayList<>();
+        final List<Vector2> textureCoordinates = new ArrayList<>();
         for (Vector3 flat : result.flat()) {
-            colors.add(edgeColor(flat, result.edgeLoops(), apothem, edgeBand, plain));
+            colors.add(Color.WHITE);
+            textureCoordinates.add(textureCoordinates(flat, octagonRadius));
         }
-        return new FoldingMesh(result.flat(), result.triangles(), colors, folded, normals,
-            ParametricSurface.opaqueMaterial(Color.WHITE));
+        final Material material = ParametricSurface.opaqueMaterial(Color.WHITE);
+        material.set(TextureAttribute.createDiffuse(texture));
+        return new FoldingMesh(result.flat(), result.triangles(), colors, folded, normals, material,
+            textureCoordinates, texture);
     }
 
-    private static Color edgeColor(Vector3 flat, int[] edgeLoops, float apothem, float edgeBand, Color plain) {
-        double nearest = Double.MAX_VALUE;
-        int nearestSide = 0;
-        for (int side = 0; side < edgeLoops.length; side++) {
-            // the sides face the angles 45°, 90°, ... (the corners are at 22.5° and every 45° after that)
-            final double angle = Math.PI / 4 * (side + 1);
-            final double distance = apothem - (flat.x * Math.cos(angle) + flat.z * Math.sin(angle));
-            if (distance < nearest) {
-                nearest = distance;
-                nearestSide = side;
+    /** Where a point of the flat octagon is in the texture: the square around the octagon, with the pixel rows going along Z. */
+    private static Vector2 textureCoordinates(Vector3 flat, float octagonRadius) {
+        return new Vector2(flat.x / (2 * octagonRadius) + 0.5f, flat.z / (2 * octagonRadius) + 0.5f);
+    }
+
+    /**
+     * The picture of the flat octagon: the color of each point is the color of the side that is the closest, within a band along the side,
+     * and plain elsewhere, with a smooth edge of one pixel.
+     */
+    static Pixmap borderPixmap(float octagonRadius, float edgeBand, int[] edgeLoops, Color plain) {
+        final Pixmap pixmap = new Pixmap(TEXTURE_SIZE, TEXTURE_SIZE, Pixmap.Format.RGBA8888);
+        final float apothem = octagonRadius * (float) Math.cos(Math.PI / 8);
+        final float pixel = 2 * octagonRadius / TEXTURE_SIZE;
+        final Color color = new Color();
+        for (int py = 0; py < TEXTURE_SIZE; py++) {
+            for (int px = 0; px < TEXTURE_SIZE; px++) {
+                final double x = (px + 0.5) * pixel - octagonRadius, z = (py + 0.5) * pixel - octagonRadius;
+                double nearest = Double.MAX_VALUE;
+                int nearestSide = 0;
+                for (int side = 0; side < edgeLoops.length; side++) {
+                    // the sides face the angles 45°, 90°, ... (the corners are at 22.5° and every 45° after that)
+                    final double angle = Math.PI / 4 * (side + 1);
+                    final double distance = apothem - (x * Math.cos(angle) + z * Math.sin(angle));
+                    if (distance < nearest) {
+                        nearest = distance;
+                        nearestSide = side;
+                    }
+                }
+                // 1 inside the band, 0 outside, and in between for the pixel on the edge of the band
+                final float inBand = (float) Math.max(0, Math.min(1, (edgeBand - nearest) / pixel + 0.5));
+                color.set(plain).lerp(LOOP_COLORS[edgeLoops[nearestSide]], inBand);
+                pixmap.drawPixel(px, py, Color.rgba8888(color));
             }
         }
-        return nearest > edgeBand ? plain : LOOP_COLORS[edgeLoops[nearestSide]];
+        return pixmap;
     }
 
     /** A point of the surface above or below the given place, on the top or the bottom of it. */
