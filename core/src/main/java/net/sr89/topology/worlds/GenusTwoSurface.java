@@ -198,17 +198,27 @@ public class GenusTwoSurface implements World {
      * @param side -1 for the left lobe, +1 for the right lobe
      */
     static Curve aroundHole(int side) {
+        return aroundHole(side, HOLE_LOOP_LEVEL);
+    }
+
+    /**
+     * The loop around the hole of one lobe, at another level of g: closer to the rim of the hole for a smaller level. The
+     * loops at different levels are parallel and do not meet.
+     *
+     * @param level a number between 0 (the crest) and the radius of the tube, in the units of the equation
+     */
+    static Curve aroundHole(int side, float level) {
         // g(x, 0) = level has two positive solutions for x² (the oval's left and right ends)
-        final double root = Math.sqrt(1 - 4 * HOLE_LOOP_LEVEL);
+        final double root = Math.sqrt(1 - 4 * level);
         final double left = Math.sqrt((1 - root) / 2), right = Math.sqrt((1 + root) / 2);
         final double middle = (left + right) / 2, radius = (right - left) / 2;
-        final double z = Math.sqrt(LOOP_TUBE_RADIUS * LOOP_TUBE_RADIUS - HOLE_LOOP_LEVEL * HOLE_LOOP_LEVEL);
+        final double z = Math.sqrt(LOOP_TUBE_RADIUS * LOOP_TUBE_RADIUS - level * level);
 
         return (t, out) -> {
             final double angle = 2 * Math.PI * t;
             final double x = middle + radius * Math.cos(angle);
             // y = ±√(g - level). The sign follows the angle, which makes the curve smooth where it turns around.
-            final double y = Math.sqrt(Math.max(g((float) x, 0f) - HOLE_LOOP_LEVEL, 0)) * Math.signum(Math.sin(angle));
+            final double y = Math.sqrt(Math.max(g((float) x, 0f) - level, 0)) * Math.signum(Math.sin(angle));
             toWorld(side * (float) x, (float) y, (float) z, out);
         };
     }
