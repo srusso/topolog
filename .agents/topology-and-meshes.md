@@ -31,3 +31,19 @@ Shapes (`shapes/`), their maths (`math/`), and the worlds (`worlds/`).
   markers on it.
 - Surfaces in the figure-eight genus 2 equation are in the XY plane (Z thin) and are laid flat for the world (`toWorld`).
   Which side faces the default camera (it looks from +z) matters: loops can end up on the back.
+
+## Worlds from Hatcher's chapters 0-4 (what was checked)
+- **Brouwer**: the retraction `r(x)` (the ray from `f(x)` through `x`) winds once around the boundary for circles of any size
+  around the fixed point. Checked numerically (winding of `r` over circles of radius 1.35 down to 0.05).
+- **Borsuk-Ulam**: `T = z + even part` makes `T(p) = T(-p)` exactly on the equator; `P(p) - P(-p)` is odd on it (checked to 1e-15).
+- **Trefoil**: crossings are found numerically (pairs of parameters with the same projection, refined with Newton's method);
+  the arcs start where a strand goes under. Each crossing has the third arc over, which is a property of the trefoil.
+- **Triangulated torus**: chains are modulo 2; checked V - E + F = 0, and that the strip has two boundary cycles and the full torus none.
+- **Hairy ball**: the index of each zero is checked as the winding number of the field around it (+1 +1, +1 +1, +2). The field with one
+  zero uses two charts (west of the equator and east of it) of the Riemann sphere.
+- **Hopf**: fibres map to their base point exactly; the linking number of two fibres is checked with the Gauss integral (it is 1 in
+  absolute value). The stereographic projection sends fibres near the pole far away: keep the latitudes under about 1.8.
+- **Degree of sphere maps**: `f(theta, phi) = (theta, d phi)`; the preimages of `(theta, phi_q)` are `phi = (phi_q + 2 pi k) / d`.
+- **Deformation retractions**: straight-line homotopies with `FoldingMesh`; the subspace `A` must not move (checked) and the end
+  state must lie in `A`.
+- libgdx spheres built with `u` as the polar angle from the Y axis have inward normals: pass `flipNormals = true`.

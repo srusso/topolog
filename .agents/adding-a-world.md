@@ -12,5 +12,6 @@
 4. Check it headlessly (see build-and-verify.md): it builds, `reposition` runs, the geometry is what you claim.
 5. Commit it by itself, with a message that says what the world shows.
 
-Shared pieces: `Tubes` (circle, helix), `TubeMesh`, `ParametricSurface`, `MarchingTetrahedra`, `FoldingMesh`, `Flag`, `SegmentTubes`,
-`LineMesh`, `GenusTwoSurface` (loops and surface of genus 2 that other worlds reuse).
+Shared pieces: `Tubes` (circle, helix), `TubeMesh`, `ParametricSurface` (also with a color per vertex), `MarchingTetrahedra`, `FoldingMesh`
+(vertices move between two shapes, with a color each), `Flag`, `SegmentTubes`, `LineMesh`, `Primitives` (balls, rods placed between two points,
+colors around the color wheel), `GenusTwoSurface` (loops and surface of genus 2 that other worlds reuse), `FoldTiming`.

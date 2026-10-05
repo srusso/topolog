@@ -131,6 +131,114 @@ final class WorldExplanations {
             + "around: [[a2,b2]^-1. The theorem says to put the two groups together, and identify the two: "
             + "[[a1,b1] = [[a2,b2]^-1, that is, [[a1,b1] [[a2,b2] = 1. " + ball("YELLOW") + " goes around e in A and in B.");
 
+    static final String BROUWER_FIXED_POINT = paragraphs(
+        "Brouwer's theorem: every continuous map f of the disc to itself has a fixed point. The proof is by contradiction. "
+            + "If f had no fixed point, take the ray that starts at f(x) and goes through x, and let r(x) be the point where "
+            + "it leaves the disc. Then r would be continuous, and it would leave the points of the boundary circle where "
+            + "they are: a retraction of the disc onto its boundary. That can't exist, because the fundamental group of the "
+            + "circle is Z, and that of the disc is trivial.",
+        "The map here is a contraction towards a point, and it does have a fixed point, " + ball("WHITE") + ". The "
+            + "construction works everywhere else, and shows where it breaks. Take a circle around the fixed point, with "
+            + "colored points: the rays are drawn in the same colors, and they end on the boundary at the images r(x).",
+        "Whatever the size of the circle, its image goes around the boundary exactly once, in the same order of colors. "
+            + "When the circle shrinks to the fixed point, it becomes a single point, but its image still goes around "
+            + "once: r can't be continuous there.");
+
+    static final String BORSUK_ULAM = paragraphs(
+        "The Borsuk-Ulam theorem: every continuous map g from the sphere to the plane sends two opposite points to the same "
+            + "place: g(p) = g(-p). (Think of g as the temperature and the pressure on the Earth: two points opposite "
+            + "each other have the same temperature and the same pressure.)",
+        "Here g = (T, P), where T(p) = z plus something even. So T(p) - T(-p) = 2z, which is zero exactly on the "
+            + "[RED]equator[]: there, the two points always have the same T.",
+        "On the equator, k = P(p) - P(-p) is an odd function of the position: k changes sign when p goes half a turn. "
+            + "The graph on the right is k. " + ball("ORANGE") + " is the point p and " + ball("CYAN") + " is its opposite, "
+            + "on the sphere and on the graph. As p goes half a turn, k goes from k0 to -k0, so it must be zero "
+            + "somewhere: there, the balls turn " + ball("GREEN") + ", and both T and P agree.",
+        "The general proof uses the fundamental group: an odd map from the sphere to the circle can't exist.");
+
+    static final String TREFOIL_KNOT_GROUP = paragraphs(
+        "The fundamental group of the complement of a knot: the loops that go around the knot, but can't go through it. "
+            + "Here, the trefoil. Seen from above, it has three crossings, where a strand goes over another. Cut the "
+            + "strands where they go under: the knot is made of three arcs, [RED]red[], [CYAN]cyan[] and [ORANGE]orange[].",
+        "Each arc gives a generator (Wirtinger): a loop that starts at the base point " + ball("WHITE") + " above the "
+            + "knot, goes down along a line to the arc, once around it, and back. Each crossing gives a relation: the loop "
+            + "around the arc that comes out from under is the loop around the arc that goes in, conjugated by the "
+            + "arc that goes over. The " + ball("YELLOW") + " balls mark the three crossings. There, the [ORANGE]orange[] arc "
+            + "goes under the [CYAN]cyan[] one and comes out [RED]red[]; the [CYAN]cyan[] goes under the [RED]red[] and "
+            + "comes out [ORANGE]orange[]; and the [RED]red[] goes under the [ORANGE]orange[] and comes out [CYAN]cyan[].",
+        "For the trefoil the three relations give <x, y | x y x = y x y>, which is the same as <a, b | a^2 = b^3>. This "
+            + "group is not abelian, while the group of an ordinary circle is Z: this is how we know that the trefoil is "
+            + "really knotted.");
+
+    static final String TRIANGULATED_TORUS_HOMOLOGY = paragraphs(
+        "Simplicial homology, on a triangulation of the torus: 48 vertices, 144 edges, 96 triangles. A chain is a set of "
+            + "edges or of triangles (counted modulo 2, to keep it simple). The boundary of a set of triangles is the edges "
+            + "that are in exactly one of them: they are drawn thick, in " + ball("YELLOW") + " yellow. A cycle is a set of "
+            + "edges without boundary, and H1 is the cycles, modulo the ones that are boundaries.",
+        "First, a disc of " + ball("ORANGE") + " triangles grows: its boundary is a cycle, and it is a boundary. Then, a strip "
+            + "grows between two parallel cycles: its boundary is both of them, so they are the same element of H1: "
+            + "homologous.",
+        "The [RED]red[] cycle a (the long way around) and the [CYAN]cyan[] cycle b (the short way) are not the boundary of "
+            + "any set of triangles: they are the two generators of H1 = Z + Z (here Z/2 + Z/2, because of the "
+            + "coefficients). Finally, all the triangles together have no boundary at all, because every edge is in two "
+            + "of them: that is H2 = Z. The Euler characteristic is 48 - 144 + 96 = 0.");
+
+    static final String HAIRY_BALL = paragraphs(
+        "The hairy ball theorem: a continuous field of tangent vectors on the sphere must be zero somewhere. You can't comb "
+            + "a hairy ball flat. The arrows are the field (their length is its size), and the " + ball("CYAN")
+            + " points flow along it. The " + ball("YELLOW") + " balls are its zeros.",
+        "More precisely, the indices of the zeros add up to the Euler characteristic of the sphere, which is 2. The index "
+            + "of a zero is how many times the field turns while going once around it. The rotation around the vertical "
+            + "axis has two zeros of index +1; so does the flow from one pole to the other (a source and a sink). A "
+            + "third field has a single zero, of index +2: the field turns twice around it.",
+        "The torus is different: its Euler characteristic is 0, and it has a field that is never zero.");
+
+    static final String CUP_PRODUCTS = paragraphs(
+        "Cup products, seen with Poincare duality. On a closed surface, every class of cohomology H^1 is dual to a curve, "
+            + "and the cup product of two classes is the number of points where their curves cross (with signs). So it can be "
+            + "seen: two curves that cross once give 1, and two curves that don't meet give 0. Here, the two curves of "
+            + "each pair are drawn, and " + ball("GREEN") + " is the point where they meet.",
+        "On the torus: a ([RED]red[]) and b ([CYAN]cyan[]) cross once, so a cup b = 1. A curve and a copy of itself pushed "
+            + "off to the side ([PINK]pink[]) never meet, so a cup a = 0. The product is antisymmetric: b cup a = -(a cup b).",
+        "On the genus 2 surface: [RED]a1[] and [CYAN]b1[] cross once, and so do [ORANGE]a2[] and [MAGENTA]b2[]. Curves on "
+            + "different handles don't meet, and no curve meets a pushed-off copy of itself. So the cup product pairs a1 "
+            + "with b1 and a2 with b2, and is 0 on every other pair: it gives the ring structure of the cohomology.");
+
+    static final String HOPF_FIBRATION = paragraphs(
+        "The Hopf fibration. S^3 is the set of points (z1, z2) of C^2 with |z1|^2 + |z2|^2 = 1, and the Hopf map sends it to "
+            + "the sphere S^2 by (z1, z2) -> (2 z1 conj(z2), |z1|^2 - |z2|^2). The points that have the same image are a "
+            + "circle: the fibre. So S^3 is a union of circles, one over each point of S^2.",
+        "S^3 has four dimensions, so what is drawn is its stereographic projection to R^3: the fibres are circles, and they "
+            + "make a beautiful arrangement. The fibres over a circle of latitude of S^2 (the sphere on the right, where "
+            + "each fibre has a point of its color) make a torus: nested tori, one for each latitude. The circle "
+            + "through the middle is the fibre over the pole.",
+        "Any two fibres are linked exactly once, like the [RED]red[] and [BLUE]blue[] ones. This linking number, 1, is the "
+            + "Hopf invariant: it is why the Hopf map is not homotopic to a constant, and it generates pi3(S^2) = Z. The "
+            + ball("WHITE") + " point of S^2 moves, and its fibre (the white beads) moves with it.");
+
+    static final String DEGREE_OF_SPHERE_MAPS = paragraphs(
+        "pi2(S^2) = Z: the maps from the sphere to the sphere, up to homotopy, are classified by an integer, the degree: how "
+            + "many times the map covers the target, with a sign if it turns the orientation around.",
+        "The map here keeps the latitude and multiplies the longitude by the degree d. The sphere on the right is the "
+            + "target, with the colors of a color wheel for the longitude (brighter near the north pole). The sphere on "
+            + "the left has, at each point, the color of its image: for d = 2 the whole pattern appears twice, for d = -1 "
+            + "once but backwards, and for d = 0 only one line of colors is left.",
+        "The " + ball("WHITE") + " ball moves on the target, and the " + ball("YELLOW") + " balls are its preimages: there "
+            + "are |d| of them, and counted with signs there are d, whatever the point is. This is why the degree does not "
+            + "depend on the point. Two maps of the same degree can be deformed into each other, and two of different degrees "
+            + "can't: that is pi2(S^2) = Z.");
+
+    static final String DEFORMATION_RETRACTIONS = paragraphs(
+        "A deformation retraction of a space X onto a subspace A is a homotopy that starts as the identity of X, ends as a map "
+            + "into A, and never moves the points of A. Then X and A are homotopy equivalent: they have the same "
+            + "fundamental group, the same homology... Each point moves in a straight line to its place in A, and the "
+            + "points of [RED]A[] don't move.",
+        "The disc deforms onto a point: it is contractible. The annulus deforms onto its core circle, so its fundamental "
+            + "group is Z. The Mobius band deforms onto its core circle too: it is not an annulus, but it has the same "
+            + "homotopy type, and its fundamental group is also Z.",
+        "This is how homotopy equivalence is used: to replace a space by a simpler one that has the same algebraic "
+            + "invariants.");
+
     /** Paragraphs, with an empty line between them. */
     private static String paragraphs(String... paragraphs) {
         return String.join("\n\n", paragraphs);

@@ -42,6 +42,15 @@ import net.sr89.topology.worlds.TorusWithFundamentalGroup;
 import net.sr89.topology.worlds.UniversalCoverOfTorus;
 import net.sr89.topology.worlds.VanKampenGenusTwo;
 import net.sr89.topology.worlds.WedgeOfCircles;
+import net.sr89.topology.worlds.BrouwerFixedPoint;
+import net.sr89.topology.worlds.BorsukUlam;
+import net.sr89.topology.worlds.TrefoilKnotGroup;
+import net.sr89.topology.worlds.TriangulatedTorusHomology;
+import net.sr89.topology.worlds.HairyBall;
+import net.sr89.topology.worlds.CupProducts;
+import net.sr89.topology.worlds.HopfFibration;
+import net.sr89.topology.worlds.DegreeOfSphereMaps;
+import net.sr89.topology.worlds.DeformationRetractions;
 import net.sr89.topology.worlds.World;
 
 import java.util.List;
@@ -132,7 +141,16 @@ public class TopologyApp extends ApplicationAdapter {
             new WorldGallery.Entry(new HexagonTorus(), new Framing(new Vector3(), 3.0f), WorldExplanations.HEXAGON_TORUS),
             new WorldGallery.Entry(new GenusTwoPolygon(), new Framing(new Vector3(), 3.0f), WorldExplanations.GENUS_TWO_POLYGON),
             new WorldGallery.Entry(new WedgeOfCircles(), new Framing(new Vector3(0f, 1.3f, 0f), 3.3f), WorldExplanations.WEDGE_OF_CIRCLES),
-            new WorldGallery.Entry(new VanKampenGenusTwo(), new Framing(new Vector3(), 4.2f), WorldExplanations.VAN_KAMPEN));
+            new WorldGallery.Entry(new VanKampenGenusTwo(), new Framing(new Vector3(), 4.2f), WorldExplanations.VAN_KAMPEN),
+            new WorldGallery.Entry(new BrouwerFixedPoint(), new Framing(new Vector3(), 2.6f), WorldExplanations.BROUWER_FIXED_POINT),
+            new WorldGallery.Entry(new BorsukUlam(), new Framing(new Vector3(0.7f, 0f, 0f), 4.8f), WorldExplanations.BORSUK_ULAM),
+            new WorldGallery.Entry(new TrefoilKnotGroup(), new Framing(new Vector3(0f, 1.4f, 0f), 3.8f), WorldExplanations.TREFOIL_KNOT_GROUP),
+            new WorldGallery.Entry(new TriangulatedTorusHomology(), new Framing(new Vector3(), 3.1f), WorldExplanations.TRIANGULATED_TORUS_HOMOLOGY),
+            new WorldGallery.Entry(new HairyBall(), new Framing(new Vector3(), 2.3f), WorldExplanations.HAIRY_BALL),
+            new WorldGallery.Entry(new CupProducts(), new Framing(new Vector3(-0.8f, 0f, 0f), 4.9f), WorldExplanations.CUP_PRODUCTS),
+            new WorldGallery.Entry(new HopfFibration(), new Framing(new Vector3(1.4f, 0.3f, 0f), 4.1f), WorldExplanations.HOPF_FIBRATION),
+            new WorldGallery.Entry(new DegreeOfSphereMaps(), new Framing(new Vector3(), 4.4f), WorldExplanations.DEGREE_OF_SPHERE_MAPS),
+            new WorldGallery.Entry(new DeformationRetractions(), new Framing(new Vector3(), 2.7f), WorldExplanations.DEFORMATION_RETRACTIONS));
         worlds = galleryEntries.stream().map(WorldGallery.Entry::world).toList();
         selectWorld(1);
 
